@@ -1,0 +1,75 @@
+{
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module",
+    "project": "./tsconfig.json"
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
+  },
+  "extends": [
+    "airbnb-typescript/base",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "plugin:node/recommended",
+    "plugin:prettier/recommended",
+    "prettier/@typescript-eslint"
+  ],
+  "rules": {
+    "arrow-body-style": "off",
+    "arrow-parens": ["error", "as-needed"],
+    "class-methods-use-this": "off",
+    "implicit-arrow-linebreak": "off",
+    "linebreak-style": ["error", "unix"],
+    "lines-between-class-members": [
+      "error",
+      "always",
+      {
+        "exceptAfterSingleLine": true
+      }
+    ],
+    "no-case-declarations": "off",
+    "no-console": "off",
+    "no-process-exit": "off",
+    "node/no-unsupported-features/es-syntax": [
+      "error",
+      {
+        "ignores": ["modules"]
+      }
+    ],
+    "object-curly-newline": "off",
+    "spaced-comment": [
+      "error",
+      "always",
+      {
+        "line": {
+          "markers": ["/"]
+        }
+      }
+    ],
+    "import/no-cycle": "off",
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          ["builtin", "external"],
+          ["internal", "parent", "sibling", "index"]
+        ],
+        "newlines-between": "never"
+      }
+    ],
+    "import/prefer-default-export": "off",
+    "@typescript-eslint/no-unsafe-assignment": "off",
+    "@typescript-eslint/no-unsafe-call": "off",
+    "@typescript-eslint/no-unsafe-member-access": "off",
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/restrict-template-expressions": "off"
+  }
+}
