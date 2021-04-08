@@ -52,16 +52,19 @@ export const removePlaylistTracks = async (
     tracks: tracks.map(track => ({ uri: track.uri })),
   };
 
-  await api
-    .delete<SpotifyApi.RemoveTracksFromPlaylistResponse>(`/playlists/${playlistId}/tracks`, {
-      data: requestData,
-    })
-    .catch((err: AxiosError) => {
-      console.error(err.toJSON());
-    });
+  if (tracks.length > 0) {
+    await api
+      .delete<SpotifyApi.RemoveTracksFromPlaylistResponse>(`/playlists/${playlistId}/tracks`, {
+        data: requestData,
+      })
+      .catch((err: AxiosError) => {
+        console.error(err.toJSON());
+      });
 
-  console.log('Successfully removed the following songs:');
-  tracks.forEach(track => {
-    console.log(`- ${track.name}`);
-  });
+    console.log('Successfully removed the following songs:');
+
+    tracks.forEach(track => {
+      console.log(`- ${track.artists.map(artist => artist.name).join(' + ')} - ${track.name}`);
+    });
+  }
 };
