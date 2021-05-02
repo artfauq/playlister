@@ -4,32 +4,31 @@ import { getPlaylistTracks, getUserPlaylists, removePlaylistTracks } from './hel
   // Retrieve all user's playlists
   const playlists = await getUserPlaylists();
 
-  const discoveryPlaylist = playlists.find(playlist => playlist.name === 'Discovery');
-  const greatMixPlaylist = playlists.find(playlist => playlist.name === 'Great Mix');
-  const heatUpPlaylist = playlists.find(playlist => playlist.name === 'Heat Up');
-  const popComPlaylist = playlists.find(playlist => playlist.name === "Pop Com'");
+  const toCleanPlaylist = playlists.find(playlist => playlist.name === 'Discovery');
+  const searchPlaylists = playlists.filter(playlist => ['FF I', 'FF II'].includes(playlist.name));
 
-  if (!discoveryPlaylist || !greatMixPlaylist || !heatUpPlaylist || !popComPlaylist) {
+  if (!toCleanPlaylist) {
     throw new Error('Playlist not found !');
   }
 
   const toDeleteTracks: Array<SpotifyApi.TrackObjectFull> = [];
-  const discoveryPlaylistTracks = await getPlaylistTracks(discoveryPlaylist.tracks.href);
-  const greatMixPlaylistTracks = await getPlaylistTracks(greatMixPlaylist.tracks.href);
-  const heatUpPlaylistTracks = await getPlaylistTracks(heatUpPlaylist.tracks.href);
-  const popComPlaylistTracks = await getPlaylistTracks(popComPlaylist.tracks.href);
+  const playlistTracks = await getPlaylistTracks(toCleanPlaylist.tracks.href);
 
-  discoveryPlaylistTracks.forEach(({ track }) => {
+  const searchTracks = ([] as Array<SpotifyApi.PlaylistTrackObject>).concat(
+    ...(await Promise.all(
+      searchPlaylists.map(playlist => getPlaylistTracks(playlist.tracks.href)),
+    )),
+  );
+
+  playlistTracks.forEach(({ track }) => {
     if (track.is_local) {
       return;
     }
 
     if (
       !track.is_playable ||
-      greatMixPlaylistTracks.find(({ track: t }) => t.uri === track.uri) ||
-      heatUpPlaylistTracks.find(({ track: t }) => t.uri === track.uri) ||
-      popComPlaylistTracks.find(({ track: t }) => t.uri === track.uri) ||
-      discoveryPlaylistTracks.find(
+      searchTracks.find(({ track: t }) => t.uri === track.uri) ||
+      playlistTracks.find(
         ({ track: t }) =>
           t.uri !== track.uri &&
           t.name.toLowerCase() === track.name.toLowerCase() &&
@@ -42,7 +41,7 @@ import { getPlaylistTracks, getUserPlaylists, removePlaylistTracks } from './hel
     }
   });
 
-  await removePlaylistTracks(discoveryPlaylist.id, toDeleteTracks);
+  await removePlaylistTracks(toCleanPlaylist.id, toDeleteTracks);
 })().catch(err => {
   console.error(err);
 
