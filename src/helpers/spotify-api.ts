@@ -49,22 +49,10 @@ export const removePlaylistTracks = async (
   tracks: Array<SpotifyApi.TrackObjectFull> = [],
 ): Promise<void> => {
   const requestData = {
-    tracks: tracks.map(track => ({ uri: track.uri })),
+    tracks: tracks.map(track => ({ uri: track.linked_from?.uri || track.uri })),
   };
 
-  if (tracks.length > 0) {
-    await api
-      .delete<SpotifyApi.RemoveTracksFromPlaylistResponse>(`/playlists/${playlistId}/tracks`, {
-        data: requestData,
-      })
-      .catch((err: AxiosError) => {
-        console.error(err.toJSON());
-      });
-
-    console.log('Successfully removed the following songs:');
-
-    tracks.forEach(track => {
-      console.log(`- ${track.artists.map(artist => artist.name).join(' + ')} - ${track.name}`);
-    });
-  }
+  await api.delete<SpotifyApi.RemoveTracksFromPlaylistResponse>(`/playlists/${playlistId}/tracks`, {
+    data: requestData,
+  });
 };
