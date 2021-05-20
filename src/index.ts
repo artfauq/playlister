@@ -1,11 +1,13 @@
 import { getPlaylistTracks, getUserPlaylists, removePlaylistTracks } from './helpers';
 
-const CLEAN_PLAYLIST = 'TRI';
-const SEARCH_PLAYLIST = ['FF I', 'FF II', 'FF III'];
+const CLEAN_PLAYLIST = 'Discovery';
+const SEARCH_PLAYLIST = ['FF I', 'FF II'];
 
 (async () => {
   // Retrieve all user's playlists
   const playlists = await getUserPlaylists();
+
+  console.log(`Retrieved ${playlists.length} playlists`);
 
   const toCleanPlaylist = playlists.find(playlist => playlist.name === CLEAN_PLAYLIST);
   const searchPlaylists = playlists.filter(playlist => SEARCH_PLAYLIST.includes(playlist.name));
@@ -16,11 +18,15 @@ const SEARCH_PLAYLIST = ['FF I', 'FF II', 'FF III'];
 
   const playlistTracks = await getPlaylistTracks(toCleanPlaylist.tracks.href);
 
+  console.log(`Found ${playlistTracks.length} songs in playlist ${CLEAN_PLAYLIST}`);
+
   const searchTracks = ([] as Array<SpotifyApi.PlaylistTrackObject>).concat(
     ...(await Promise.all(
       searchPlaylists.map(playlist => getPlaylistTracks(playlist.tracks.href)),
     )),
   );
+
+  console.log(`Found ${searchTracks.length} songs in playlists: ${searchPlaylists.join(', ')}`);
 
   const toDeleteTracks = playlistTracks
     .filter(
@@ -54,11 +60,13 @@ const SEARCH_PLAYLIST = ['FF I', 'FF II', 'FF III'];
       .map(chunk => removePlaylistTracks(toCleanPlaylist.id, chunk)),
   );
 
-  console.log('Successfully removed the following songs:');
+  console.log(`Successfully removed ${toDeleteTracks.length} songs:`);
 
   toDeleteTracks.forEach(track => {
     console.log(`- ${track.artists.map(artist => artist.name).join(' + ')} - ${track.name}`);
   });
+
+  process.exit(0);
 })().catch(err => {
   console.error(err);
 
