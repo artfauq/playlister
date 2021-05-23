@@ -1,24 +1,24 @@
 import { getPlaylistTracks, getUserPlaylists, removePlaylistTracks } from './helpers';
 
 const CLEAN_PLAYLIST = 'Discovery';
-const SEARCH_PLAYLIST = ['FF I', 'FF II'];
+const SEARCH_PLAYLIST = ['FF I', 'FF II', 'TRI'];
 
 (async () => {
   // Retrieve all user's playlists
   const playlists = await getUserPlaylists();
 
-  console.log(`Retrieved ${playlists.length} playlists`);
+  console.log(`\nRetrieved ${playlists.length} playlists`);
 
   const toCleanPlaylist = playlists.find(playlist => playlist.name === CLEAN_PLAYLIST);
   const searchPlaylists = playlists.filter(playlist => SEARCH_PLAYLIST.includes(playlist.name));
 
   if (!toCleanPlaylist) {
-    throw new Error('Playlist not found !');
+    throw new Error('\nPlaylist not found !');
   }
 
   const playlistTracks = await getPlaylistTracks(toCleanPlaylist.tracks.href);
 
-  console.log(`Found ${playlistTracks.length} songs in playlist ${CLEAN_PLAYLIST}`);
+  console.log(`\nFound ${playlistTracks.length} songs in playlist ${CLEAN_PLAYLIST}`);
 
   const searchTracks = ([] as Array<SpotifyApi.PlaylistTrackObject>).concat(
     ...(await Promise.all(
@@ -26,27 +26,29 @@ const SEARCH_PLAYLIST = ['FF I', 'FF II'];
     )),
   );
 
-  console.log(`Found ${searchTracks.length} songs in playlists: ${searchPlaylists.join(', ')}`);
+  console.log(
+    `\nFound ${searchTracks.length} songs in playlists: ${searchPlaylists
+      .map(playlist => playlist.name)
+      .join(', ')}`,
+  );
 
   const toDeleteTracks = playlistTracks
     .filter(
-      ({ track }) =>
-        !track.is_local &&
-        (!track.is_playable ||
+      ({ track: t1 }) =>
+        !t1.is_local &&
+        (!t1.is_playable ||
           searchTracks.find(
-            ({ track: t }) =>
-              t.uri === track.uri ||
-              (t.uri !== track.uri &&
-                t.name.toLowerCase() === track.name.toLowerCase() &&
-                t.artists.map(artist => artist.name).join(' + ') ===
-                  track.artists.map(artist => artist.name).join(' + ') &&
-                t.duration_ms === track.duration_ms),
+            ({ track: t2 }) =>
+              t1.uri === t2.uri ||
+              (t1.name.toLowerCase() === t2.name.toLowerCase() &&
+                t1.artists.map(artist => artist.name).join(',') ===
+                  t2.artists.map(artist => artist.name).join(',')),
           )),
     )
     .map(({ track }) => track);
 
   if (toDeleteTracks.length === 0) {
-    console.log('No tracks to remove !');
+    console.log('\nNo tracks to remove !');
 
     return;
   }
@@ -60,7 +62,7 @@ const SEARCH_PLAYLIST = ['FF I', 'FF II'];
       .map(chunk => removePlaylistTracks(toCleanPlaylist.id, chunk)),
   );
 
-  console.log(`Successfully removed ${toDeleteTracks.length} songs:`);
+  console.log(`\nSuccessfully removed ${toDeleteTracks.length} songs:`);
 
   toDeleteTracks.forEach(track => {
     console.log(`- ${track.artists.map(artist => artist.name).join(' + ')} - ${track.name}`);
