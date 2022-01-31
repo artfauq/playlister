@@ -30,7 +30,7 @@ export const getPlaylistTracks = async (
   acc: Array<SpotifyApi.PlaylistTrackObject> = [],
 ): Promise<Array<SpotifyApi.PlaylistTrackObject>> => {
   const { data } = await api.get<SpotifyApi.PlaylistTrackResponse>(href, {
-    params: { limit: 100, market: 'FR' },
+    params: { limit: 100 },
   });
 
   // Retrieve tracks from response and sort them by name

@@ -1,7 +1,7 @@
 import { getPlaylistTracks, getUserPlaylists, removePlaylistTracks } from './helpers';
 
-const CLEAN_PLAYLIST = 'Discovery';
-const SEARCH_PLAYLIST = ['FF I', 'FF II', 'TRI'];
+const CLEAN_PLAYLIST = '';
+const SEARCH_PLAYLISTS: string[] = [];
 
 (async () => {
   // Retrieve all user's playlists
@@ -10,7 +10,11 @@ const SEARCH_PLAYLIST = ['FF I', 'FF II', 'TRI'];
   console.log(`\nRetrieved ${playlists.length} playlists`);
 
   const toCleanPlaylist = playlists.find(playlist => playlist.name === CLEAN_PLAYLIST);
-  const searchPlaylists = playlists.filter(playlist => SEARCH_PLAYLIST.includes(playlist.name));
+  const searchPlaylists = playlists.filter(
+    playlist =>
+      playlist.name !== CLEAN_PLAYLIST &&
+      (SEARCH_PLAYLISTS.length === 0 || SEARCH_PLAYLISTS.includes(playlist.name)),
+  );
 
   if (!toCleanPlaylist) {
     throw new Error('\nPlaylist not found !');
@@ -36,14 +40,13 @@ const SEARCH_PLAYLIST = ['FF I', 'FF II', 'TRI'];
     .filter(
       ({ track: t1 }) =>
         !t1.is_local &&
-        (!t1.is_playable ||
-          searchTracks.find(
-            ({ track: t2 }) =>
-              t1.uri === t2.uri ||
-              (t1.name.toLowerCase() === t2.name.toLowerCase() &&
-                t1.artists.map(artist => artist.name).join(',') ===
-                  t2.artists.map(artist => artist.name).join(',')),
-          )),
+        searchTracks.find(
+          ({ track: t2 }) =>
+            t1.uri === t2.uri ||
+            (t1.name.toLowerCase() === t2.name.toLowerCase() &&
+              t1.artists.map(artist => artist.name).join(',') ===
+                t2.artists.map(artist => artist.name).join(',')),
+        ),
     )
     .map(({ track }) => track);
 
