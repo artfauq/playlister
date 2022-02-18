@@ -1,9 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "inlineSources": true,
-    "rootDir": "./src",
-    "sourceRoot": "/"
-  },
-  "exclude": ["./node_modules"]
-}

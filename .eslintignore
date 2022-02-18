@@ -1,2 +1,4 @@
+# Add files here to ignore them from ESlint linting
+
 dist/
 node_modules/
