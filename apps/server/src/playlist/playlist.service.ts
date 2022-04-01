@@ -62,6 +62,8 @@ export class PlaylistService {
         .map(chunk => this.removePlaylistTracks(token, toCleanPlaylist.id, chunk)),
     );
 
+    console.log(`\nSuccessfully removed ${toDeleteTracks.length} songs:`);
+
     toDeleteTracks.forEach(track => {
       console.log(`- ${track.artists.map(artist => artist.name).join(' + ')} - ${track.name}`);
     });
