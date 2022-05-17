@@ -18,10 +18,10 @@ export class PlaylistController {
     return this.playlistService.getUserPlaylists(token);
   }
 
-  @Post('/:playlistId/clean')
+  @Post('/:playlistName/clean')
   async cleanPlaylist(
     @Req() req: Request,
-    @Param('playlistId') playlistId: string,
+    @Param('playlistName') playlistName: string,
     @Query() query: CleanPlaylistQueryDto,
   ): Promise<void> {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -30,6 +30,6 @@ export class PlaylistController {
       throw new UnauthorizedException();
     }
 
-    return this.playlistService.cleanPlaylist(token, playlistId, query.playlistIds);
+    return this.playlistService.cleanPlaylist(token, playlistName, query.playlistNames);
   }
 }

@@ -6,16 +6,16 @@ import { firstValueFrom } from 'rxjs';
 export class PlaylistService {
   constructor(private httpService: HttpService) {}
 
-  async cleanPlaylist(token: string, playlistId: string, playlistIds?: string[]) {
+  async cleanPlaylist(token: string, playlistName: string, playlistNames: string[] = []) {
     const playlists = await this.getUserPlaylists(token);
 
     console.log(`\nRetrieved ${playlists.length} playlists`);
 
-    const toCleanPlaylist = playlists.find(playlist => playlist.id === playlistId);
+    const toCleanPlaylist = playlists.find(playlist => playlist.name === playlistName);
     const searchPlaylists = playlists.filter(
       playlist =>
-        playlist.id !== playlistId &&
-        (playlistIds?.length === 0 || playlistIds?.includes(playlist.id)),
+        playlist.name !== playlistName &&
+        (playlistNames.length === 0 || playlistNames?.includes(playlist.name)),
     );
 
     if (!toCleanPlaylist) {
@@ -133,7 +133,7 @@ export class PlaylistService {
     await firstValueFrom(
       this.httpService.delete<SpotifyApi.RemoveTracksFromPlaylistResponse>(
         `/playlists/${playlistId}/tracks`,
-        { data, headers },
+        { data, headers, timeout: 50000 },
       ),
     );
   }
