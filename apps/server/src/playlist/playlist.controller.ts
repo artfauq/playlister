@@ -11,9 +11,7 @@ export class PlaylistController {
   async getPlaylists(@Req() req: Request) {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    if (!token) {
-      throw new UnauthorizedException();
-    }
+    if (!token) throw new UnauthorizedException();
 
     return this.playlistService.getUserPlaylists(token);
   }
@@ -26,10 +24,17 @@ export class PlaylistController {
   ): Promise<void> {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
-    if (!token) {
-      throw new UnauthorizedException();
-    }
+    if (!token) throw new UnauthorizedException();
 
     return this.playlistService.cleanPlaylist(token, playlistName, query.playlistNames);
+  }
+
+  @Post('/:save-unclassified')
+  async saveUnclassified(@Req() req: Request): Promise<void> {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+
+    if (!token) throw new UnauthorizedException();
+
+    return this.playlistService.saveUnclassified(token);
   }
 }
