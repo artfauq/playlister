@@ -6,6 +6,6 @@ export class CleanPlaylistQueryDto {
   @IsArray()
   @IsString({ each: true })
   @Type(() => String)
-  @Transform(({ value }) => value.split(','))
+  @Transform(({ value }) => value.trim().split(','))
   playlistNames?: string[];
 }

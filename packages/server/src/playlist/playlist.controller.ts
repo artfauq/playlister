@@ -13,28 +13,28 @@ export class PlaylistController {
 
     if (!token) throw new UnauthorizedException();
 
-    return this.playlistService.getUserPlaylists(token);
+    return this.playlistService.getUserPlaylists({ token });
   }
 
   @Post('/:playlistName/clean')
   async cleanPlaylist(
     @Req() req: Request,
     @Param('playlistName') playlistName: string,
-    @Query() query: CleanPlaylistQueryDto,
+    @Query() { playlistNames }: CleanPlaylistQueryDto,
   ): Promise<void> {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) throw new UnauthorizedException();
 
-    return this.playlistService.cleanPlaylist(token, playlistName, query.playlistNames);
+    return this.playlistService.cleanPlaylist({ token, playlistName, playlistNames });
   }
 
-  @Post('/:save-unclassified')
+  @Post('/save-unclassified')
   async saveUnclassified(@Req() req: Request): Promise<void> {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) throw new UnauthorizedException();
 
-    return this.playlistService.saveUnclassified(token);
+    return this.playlistService.saveUnclassified({ token });
   }
 }

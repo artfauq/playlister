@@ -7,7 +7,7 @@ const spotifyConfig = registerAs('spotify', () => ({
   accountsUrl: 'https://accounts.spotify.com',
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  scope: 'playlist-modify-private playlist-read-private playlist-modify-public',
+  scope: 'playlist-modify-private playlist-read-private playlist-modify-public user-library-read',
 }));
 
 export default spotifyConfig;

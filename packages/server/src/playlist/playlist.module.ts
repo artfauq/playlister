@@ -18,6 +18,7 @@ import { PlaylistService } from './playlist.service';
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
+        timeout: 0,
       }),
       inject: [ConfigService],
     }),
