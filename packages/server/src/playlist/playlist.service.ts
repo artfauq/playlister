@@ -1,14 +1,20 @@
 import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { AxiosError } from 'axios';
+import { LoggerService } from 'logger/logger.service';
 import { catchError, firstValueFrom } from 'rxjs';
 import { UserService } from 'user/user.service';
+import { delayedPromises, splitArrayIntoChunks } from 'utils';
 
 const UNCLASSIFIED_PLAYLIST_NAME = 'Unclassified';
 
 @Injectable()
 export class PlaylistService {
-  constructor(private httpService: HttpService, private userService: UserService) {}
+  constructor(
+    private httpService: HttpService,
+    private logger: LoggerService,
+    private userService: UserService,
+  ) {}
 
   /**
    * Creates a new playlist for the current user.
@@ -26,13 +32,10 @@ export class PlaylistService {
 
     const { data: playlist } = await firstValueFrom(
       this.httpService
-        .post<SpotifyApi.CreatePlaylistResponse>(`/users/${userId}/playlists`, {
-          data,
-          headers,
-        })
+        .post<SpotifyApi.CreatePlaylistResponse>(`/users/${userId}/playlists`, { data, headers })
         .pipe(
           catchError((error: AxiosError) => {
-            console.log(error?.response?.data);
+            this.logger.log(error?.response?.data);
 
             throw new Error('Failed creating playlist');
           }),
@@ -42,9 +45,6 @@ export class PlaylistService {
     return playlist;
   }
 
-  /**
-   * Removes all the tracks from a playlist.
-   */
   async emptyPlaylist({
     token,
     playlist,
@@ -57,12 +57,10 @@ export class PlaylistService {
       playlistHref: playlist.tracks.href,
     });
 
-    await Promise.all(
-      Array(Math.ceil(playlistTracks.length / 100))
-        .fill(null)
-        .map((_, index) => index * 100)
-        .map(begin => playlistTracks.slice(begin, begin + 100))
-        .map(chunk => this.removeTracksFromPlaylist({ token, playlist, tracks: chunk })),
+    await delayedPromises(
+      splitArrayIntoChunks(playlistTracks, 100).map(chunk =>
+        this.removeTracksFromPlaylist({ token, playlist, tracks: chunk }),
+      ),
     );
   }
 
@@ -77,7 +75,7 @@ export class PlaylistService {
   }) {
     const playlists = await this.getUserPlaylists({ token });
 
-    console.log(`\nRetrieved ${playlists.length} playlists\n`);
+    this.logger.log(`\nRetrieved ${playlists.length} playlists\n`);
 
     const toCleanPlaylist = playlists.find(playlist => playlist.name === playlistName);
     const searchPlaylists = playlists.filter(
@@ -91,27 +89,32 @@ export class PlaylistService {
     }
 
     if (!searchPlaylists.length) {
-      throw new BadRequestException(`Found no playlists to search through`);
+      throw new BadRequestException(`Found no playlist to search through`);
     }
 
     const playlistTracks = await this.getPlaylistTracks({
       token,
       playlistHref: toCleanPlaylist.tracks.href,
     });
-    console.log(`Found ${playlistTracks.length} songs in playlist ${toCleanPlaylist.name}\n`);
+
+    this.logger.log(
+      `\nFound ${playlistTracks.length} song(s) in playlist ${toCleanPlaylist.name}\n`,
+    );
+
+    const searchPromises = searchPlaylists.map(playlist =>
+      this.getPlaylistTracks({ token, playlistHref: playlist.tracks.href }),
+    );
 
     const searchTracks = ([] as Array<SpotifyApi.PlaylistTrackObject>).concat(
-      ...(await Promise.all(
-        searchPlaylists.map(playlist =>
-          this.getPlaylistTracks({ token, playlistHref: playlist.tracks.href }),
-        ),
-      )),
+      ...(await delayedPromises(searchPromises)),
     );
-    console.log(
-      `Found ${searchTracks.length} songs in playlists: ${searchPlaylists
+
+    this.logger.log(
+      `\nFound ${searchTracks.length} song(s) in playlist(s): ${searchPlaylists
         .map(playlist => playlist.name)
         .join(', ')}\n`,
     );
+
     const toDeleteTracks = playlistTracks.filter(
       ({ track: t1 }) =>
         !t1.is_local &&
@@ -125,24 +128,22 @@ export class PlaylistService {
     );
 
     if (toDeleteTracks.length === 0) {
+      this.logger.log(`Playlist already clean ✅`);
+
       return;
     }
 
     // Remove tracks by chunks of 100
-    await Promise.all(
-      Array(Math.ceil(toDeleteTracks.length / 100))
-        .fill(null)
-        .map((_, index) => index * 100)
-        .map(begin => toDeleteTracks.slice(begin, begin + 100))
-        .map(chunk =>
-          this.removeTracksFromPlaylist({ token, playlist: toCleanPlaylist, tracks: chunk }),
-        ),
+    await delayedPromises(
+      splitArrayIntoChunks(toDeleteTracks, 100).map(chunk =>
+        this.removeTracksFromPlaylist({ token, playlist: toCleanPlaylist, tracks: chunk }),
+      ),
     );
 
-    console.log(`Successfully removed ${toDeleteTracks.length} songs:`);
+    this.logger.log(`✅ Successfully removed ${toDeleteTracks.length} song(s):`);
 
     toDeleteTracks.forEach(track => {
-      console.log(
+      this.logger.log(
         `- ${track.track.artists.map(artist => artist.name).join(' + ')} - ${track.track.name}`,
       );
     });
@@ -170,7 +171,7 @@ export class PlaylistService {
         })
         .pipe(
           catchError((error: AxiosError) => {
-            console.log(error?.response?.data);
+            this.logger.log(error?.response?.data);
 
             throw new Error('Failed retrieving user playlists');
           }),
@@ -206,7 +207,7 @@ export class PlaylistService {
         })
         .pipe(
           catchError((error: AxiosError) => {
-            console.log(error?.response?.data);
+            this.logger.log(error?.response?.data);
 
             throw new Error('Failed retrieving tracks');
           }),
@@ -218,7 +219,7 @@ export class PlaylistService {
       trackA.name.localeCompare(trackB.name),
     );
 
-    console.log(`👊 Retrieved ${tracks.length} / ${data.total} tracks`);
+    this.logger.log(`👊 Retrieved ${tracks.length} / ${data.total} tracks`);
 
     if (data.next) {
       return this.getPlaylistTracks({ token, playlistHref: data.next, chunk: tracks });
@@ -251,7 +252,7 @@ export class PlaylistService {
         .post<SpotifyApi.RemoveTracksFromPlaylistResponse>(playlist.tracks.href, data, { headers })
         .pipe(
           catchError((error: AxiosError) => {
-            console.log(error?.response?.data);
+            this.logger.log(error?.response?.data);
 
             throw new Error('Failed adding tracks to unclassified playlist');
           }),
@@ -287,7 +288,7 @@ export class PlaylistService {
         })
         .pipe(
           catchError((error: AxiosError) => {
-            console.log(error?.response?.data);
+            this.logger.log(error?.response?.data);
 
             throw error;
           }),
@@ -298,18 +299,19 @@ export class PlaylistService {
   async saveUnclassified({ token }: { token: string }) {
     const savedTracks = await this.getPlaylistTracks({ token, playlistHref: '/me/tracks' });
 
-    console.log(`\n👊 Retrieved ${savedTracks.length} saved tracks...`);
+    this.logger.log(`\n👊 Retrieved ${savedTracks.length} saved tracks...`);
 
     const playlists = await this.getUserPlaylists({ token });
+
+    const getPromises = playlists
+      .filter(playlist => playlist.name !== UNCLASSIFIED_PLAYLIST_NAME)
+      .map(playlist => this.getPlaylistTracks({ token, playlistHref: playlist.tracks.href }));
+
     const playlistTracks = ([] as Array<SpotifyApi.PlaylistTrackObject>).concat(
-      ...(await Promise.all(
-        playlists
-          .filter(playlist => playlist.name !== UNCLASSIFIED_PLAYLIST_NAME)
-          .map(playlist => this.getPlaylistTracks({ token, playlistHref: playlist.tracks.href })),
-      )),
+      ...(await delayedPromises(getPromises)),
     );
 
-    console.log(`👊 Retrieved ${savedTracks.length} tracks from all playlists...`);
+    this.logger.log(`👊 Retrieved ${savedTracks.length} tracks from all playlists...`);
 
     // Retrieve or create unclassified playlist
     const unclassifiedPlaylist =
@@ -322,22 +324,18 @@ export class PlaylistService {
         !playlistTracks.find(playlistTrack => playlistTrack.track.uri === savedTrack.track.uri),
     );
 
-    console.log(`👊 Found ${unclassifiedTracks.length} unclassified tracks...`);
+    this.logger.log(`👊 Found ${unclassifiedTracks.length} unclassified tracks...`);
 
     await this.emptyPlaylist({ token, playlist: unclassifiedPlaylist });
 
-    console.log('👊 Finished emptying playlist...');
+    this.logger.log('👊 Finished emptying playlist...');
 
-    await Promise.all(
-      Array(Math.ceil(unclassifiedTracks.length / 100))
-        .fill(null)
-        .map((_, index) => index * 100)
-        .map(begin => unclassifiedTracks.slice(begin, begin + 100))
-        .map(chunk =>
-          this.addTracksToPlaylist({ token, playlist: unclassifiedPlaylist, tracks: chunk }),
-        ),
+    const addPromises = splitArrayIntoChunks(unclassifiedTracks, 100).map(chunk =>
+      this.addTracksToPlaylist({ token, playlist: unclassifiedPlaylist, tracks: chunk }),
     );
 
-    console.log('✅ All done\n');
+    await delayedPromises(addPromises);
+
+    this.logger.log('✅ All done\n');
   }
 }
