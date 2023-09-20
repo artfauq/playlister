@@ -1,14 +1,15 @@
 module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
-    project: './tsconfig.json',
+    project: './tsconfig.eslint.json',
     sourceType: 'module',
     ecmaVersion: 2020,
   },
-  ignorePatterns: ['eslintrc.js'],
   settings: {
-    'import/parsers': {
-      '@typescript-eslint/parser': ['.ts', '.tsx'],
+    'import/resolver': {
+      typescript: {
+        project: './tsconfig.eslint.json',
+      },
     },
   },
   env: {
@@ -17,22 +18,25 @@ module.exports = {
     jest: true,
   },
   extends: [
-    'airbnb-typescript/base',
+    'airbnb',
+    'airbnb/hooks',
+    'airbnb-typescript',
     'plugin:import/typescript',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'plugin:prettier/recommended',
+    'plugin:@next/next/recommended',
+    'plugin:@typescript-eslint/recommended-type-checked',
+    'plugin:@typescript-eslint/stylistic-type-checked',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
     'plugin:promise/recommended',
+    'plugin:prettier/recommended',
   ],
-  plugins: ['import', 'promise', 'unused-imports'],
+  plugins: ['i18next', 'unused-imports'],
   rules: {
     // Common rules
-    // 'implicit-arrow-linebreak': 'off',
-    // 'linebreak-style': ['error', 'unix'],
-    // 'lines-between-class-members': ['error', 'always', { 'exceptAfterSingleLine': true }],
-    // 'newline-before-return': 'error',
-    // 'no-process-exit': 'off',
-    // 'object-curly-newline': 'off',
+    'no-await-in-loop': 'off',
+    'no-console': 'off',
+    'no-param-reassign': 'off',
+    'no-restricted-imports': 'off',
+    'no-underscore-dangle': 'off',
     'padding-line-between-statements': [
       'error',
       { blankLine: 'always', prev: '*', next: 'if' },
@@ -50,11 +54,10 @@ module.exports = {
     ],
     'spaced-comment': ['error', 'always', { line: { markers: ['/'] } }],
 
-    // eslint-plugin-node
-    // 'node/no-unsupported-features/es-syntax': ['error', { 'ignores': ['modules'] }],
-
     // eslint-plugin-import rules
-    // 'import/no-cycle': 'off',
+    'import/prefer-default-export': 'off',
+    'import/no-extraneous-dependencies': 'off',
+    'import/no-unresolved': 'error',
     'import/order': [
       'error',
       {
@@ -62,21 +65,93 @@ module.exports = {
           order: 'asc',
           caseInsensitive: true,
         },
-        'groups': [['builtin', 'external'], 'internal', 'parent', 'sibling', 'index'],
-        'newlines-between': 'never',
+        'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+        'newlines-between': 'always',
+        'pathGroups': [
+          {
+            pattern: '{next,next/*,react}',
+            group: 'builtin',
+            position: 'after',
+          },
+        ],
+        'warnOnUnassignedImports': false,
+        'pathGroupsExcludedImportTypes': ['builtin'],
       },
     ],
-    'import/prefer-default-export': 'off',
 
-    // @typescript-eslint/eslint-plugin rules
-    // '@typescript-eslint/ban-ts-comment': 'off',
-    // '@typescript-eslint/ban-types': 'off',
-    // '@typescript-eslint/no-explicit-any': 'off',
-    // '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': 'next' }],
-    // '@typescript-eslint/restrict-template-expressions': 'off',
+    // eslint-plugin-react
+    'react/forbid-elements': ['error', { forbid: ['div'] }],
+    'react/function-component-definition': [
+      'error',
+      {
+        namedComponents: ['arrow-function'],
+      },
+    ],
+    'react/jsx-handler-names': 'error',
+    'react/jsx-props-no-spreading': 'off',
+    'react/no-unstable-nested-components': 'off',
+    'react/prop-types': 'off',
+    'react/require-default-props': 'off',
 
     // eslint-plugin-unused-imports
     'unused-imports/no-unused-imports': 'error',
+
+    // @typescript-eslint/eslint-plugin
+    '@typescript-eslint/array-type': [
+      'error',
+      {
+        default: 'array-simple',
+      },
+    ],
+    '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
+    // '@typescript-eslint/indent': 'off',
+    '@typescript-eslint/naming-convention': [
+      'error',
+      {
+        selector: 'typeParameter',
+        format: ['PascalCase'],
+        custom: { regex: '^T[A-Z]', match: true },
+      },
+    ],
+    '@typescript-eslint/no-empty-interface': 'off',
+    '@typescript-eslint/no-floating-promises': 'off',
+    '@typescript-eslint/no-misused-promises': 'warn',
+    '@typescript-eslint/no-restricted-imports': [
+      'warn',
+      {
+        name: 'next/link',
+        message: 'Use `Link` component from `@chakra-ui/next-js` instead.',
+      },
+      {
+        name: 'next/image',
+        message: 'Use `Image` component from `@chakra-ui/react` instead.',
+      },
+    ],
+    '@typescript-eslint/no-unsafe-argument': 'off',
+    '@typescript-eslint/no-unsafe-assignment': 'off',
+    '@typescript-eslint/no-unsafe-member-access': 'off',
+    '@typescript-eslint/no-unsafe-return': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/no-var-requires': 'off',
+
+    // eslint-plugin-i18next
+    'i18next/no-literal-string': 'warn',
   },
-  root: true,
+  overrides: [
+    {
+      files: ['*.d.ts'],
+      rules: {
+        '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
+      },
+    },
+    {
+      files: ['templates/**'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': 'off',
+        // TODO: remove once storybook is configured
+        '@typescript-eslint/no-unsafe-call': 'off',
+      },
+    },
+  ],
 };

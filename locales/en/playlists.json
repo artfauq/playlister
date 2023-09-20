@@ -1,0 +1,13 @@
+{
+  "myPlaylists": "My playlists",
+  "statistics": {
+    "averageBpm": "Average BPM",
+    "duplicatedTracks": "Duplicated tracks",
+    "highestBpm": "Highest BPM",
+    "lowestBpm": "Lowest BPM"
+  },
+  "tracksCount": {
+    "one": "{{count}} track",
+    "other": "{{count}} tracks"
+  }
+}

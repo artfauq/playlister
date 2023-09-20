@@ -1,0 +1,12 @@
+{
+  "table": {
+    "header": {
+      "album": "Album",
+      "artist": "Artiste",
+      "tempo": "BPM",
+      "duration": "Durée",
+      "name": "Nom",
+      "popularity": "Popularité"
+    }
+  }
+}

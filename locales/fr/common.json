@@ -1,0 +1,10 @@
+{
+  "back": "Retour",
+  "languages": {
+    "en": "English",
+    "fr": "Français"
+  },
+  "playlister": "Playlister",
+  "signIn": "Se connecter",
+  "signOut": "Déconnexion"
+}
