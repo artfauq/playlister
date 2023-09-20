@@ -12,7 +12,7 @@ import { PlaylistList } from '@src/modules/PlaylistsPage';
 import { authOptions } from '@src/pages/api/auth/[...nextauth]';
 
 type Props = {
-  dehydratedState: DehydratedState;
+  dehydratedState?: DehydratedState;
   session: Session | null;
 };
 
@@ -23,9 +23,8 @@ export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }
 
   if (!session?.accessToken) {
     return {
-      redirect: {
-        destination: '/',
-        permanent: false,
+      props: {
+        session: null,
       },
     };
   }
