@@ -6,6 +6,7 @@
     "highestBpm": "BPM le plus élevé",
     "lowestBpm": "BPM le plus bas"
   },
+  "savedTracks": "Morceaux sauvegardés",
   "tracksCount": {
     "one": "{{count}} morceau",
     "other": "{{count}} morceaux"

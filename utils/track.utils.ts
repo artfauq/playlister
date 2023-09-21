@@ -1,15 +1,26 @@
 import { REMASTERED_TRACK_REGEX } from '@src/lib/constants';
 import { DuplicateTrack, Track, TrackWithAudioFeatures } from '@src/types';
 
+export const trackDto = (track: SpotifyApi.TrackObjectFull, addedAt: string): Track => {
+  return {
+    id: track.id,
+    addedAt,
+    album: track.album,
+    artists: track.artists,
+    durationMs: track.duration_ms,
+    isLocal: track.is_local,
+    isrc: track.external_ids?.isrc,
+    linkedFrom: track.linked_from,
+    name: track.name,
+    uri: track.uri,
+  };
+};
+
 export const parseTrackDuration = (durationMs: number) => {
   const minutes = Math.floor(durationMs / 60000);
   const seconds = ((durationMs % 60000) / 1000).toFixed(0);
 
   return `${minutes}:${seconds.padStart(2, '0')}`;
-};
-
-export const sortTracksByName = <TData extends Track>(tracks: TData[]) => {
-  return tracks.sort((a, b) => a.name.localeCompare(b.name));
 };
 
 export const getSortedTrackIds = (tracks: Track[]) => {
@@ -50,10 +61,10 @@ export const findDuplicateTracks = (tracks: Track[]): DuplicateTrack[] => {
   const trackNamesAndArtists = new Set<string>();
 
   tracks
-    .filter(track => !track.is_local)
+    .filter(track => !track.isLocal)
     .forEach(track => {
       const trackUri = track.uri;
-      const trackISRC = track.external_ids?.isrc;
+      const trackISRC = track.isrc;
       const trackName = track.name.replace(REMASTERED_TRACK_REGEX, '$1').trim();
       const trackArtist = track.artists[0].name.toLowerCase();
       const trackNameAndArtist = `${trackName} - ${trackArtist}`;

@@ -45,18 +45,25 @@ export const PlaylistTrackList: React.FC<Props> = ({ tracks }) => {
       sortingFn: (a, b) => a.original.album.name.localeCompare(b.original.album.name),
       maxSize: 200,
     }),
-    columnHelper.accessor<'audioFeatures.tempo', number>('audioFeatures.tempo', {
-      id: 'tempo',
-      header: t('tracks:table.header.tempo'),
-      cell: ({ getValue }) => Math.round(getValue()),
-      enableSorting: true,
-      sortDescFirst: true,
-      meta: {
-        isNumeric: true,
+    columnHelper.accessor<'audioFeatures', SpotifyApi.AudioFeaturesObject | undefined>(
+      'audioFeatures',
+      {
+        id: 'tempo',
+        header: t('tracks:table.header.tempo'),
+        cell: ({ getValue }) => {
+          const audioFeatures = getValue();
+
+          return audioFeatures?.tempo ? audioFeatures.tempo.toFixed(0) : '-';
+        },
+        enableSorting: true,
+        sortDescFirst: true,
+        meta: {
+          isNumeric: true,
+        },
+        maxSize: 100,
       },
-      maxSize: 100,
-    }),
-    columnHelper.accessor<'duration_ms', number>('duration_ms', {
+    ),
+    columnHelper.accessor<'durationMs', number>('durationMs', {
       id: 'duration',
       header: () => <Icon as={RxClock} boxSize={4} />,
       cell: ({ getValue }) => parseTrackDuration(getValue()),

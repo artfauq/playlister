@@ -1,4 +1,4 @@
-import { extendBaseTheme, withDefaultColorScheme } from '@chakra-ui/react';
+import { extendBaseTheme } from '@chakra-ui/react';
 import { ChakraTheme } from '@chakra-ui/theme';
 
 import { colors } from './colors';
@@ -18,4 +18,4 @@ const theme: Partial<ChakraTheme> = {
   ...typography,
 };
 
-export default extendBaseTheme(theme, withDefaultColorScheme({ colorScheme: 'spotify' }));
+export default extendBaseTheme(theme);

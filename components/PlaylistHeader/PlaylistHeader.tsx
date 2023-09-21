@@ -7,18 +7,18 @@ import { PlaylistTrackCount } from '@src/components/PlaylistTrackCount';
 import { Playlist } from '@src/types';
 
 type Props = StackProps & {
-  playlist: Playlist;
+  playlist: Pick<Playlist, 'coverImage' | 'name' | 'trackCount'>;
 };
 
 export const PlaylistHeader: React.FC<Props> = ({ playlist, ...rest }) => {
   return (
-    <HStack align="center" {...rest} spacing="2">
-      <PlaylistCover playlist={playlist} />
+    <HStack align="center" spacing="2" {...rest}>
+      <PlaylistCover coverImage={playlist.coverImage} name={playlist.name} />
       <VStack align="flex-start" px="2" spacing="1">
         <Heading size="sm" noOfLines={1}>
           {playlist.name}
         </Heading>
-        <PlaylistTrackCount count={playlist.tracks.total} />
+        <PlaylistTrackCount count={playlist.trackCount} />
       </VStack>
     </HStack>
   );

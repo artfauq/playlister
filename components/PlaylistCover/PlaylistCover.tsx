@@ -2,13 +2,16 @@ import React from 'react';
 
 import { Image } from '@chakra-ui/react';
 
-import { Playlist } from '@src/types';
-
-type Props = {
-  playlist: Playlist;
+export type PlaylistCoverProps = {
+  coverImage: string;
+  name: string;
   size?: string;
 };
 
-export const PlaylistCover: React.FC<Props> = ({ playlist, size = '80px' }) => {
-  return <Image src={playlist.images[0].url} alt={playlist.name} height={size} width={size} />;
+export const PlaylistCover: React.FC<PlaylistCoverProps> = ({
+  coverImage,
+  name,
+  size = '80px',
+}) => {
+  return <Image src={coverImage} alt={name} height={size} width={size} />;
 };

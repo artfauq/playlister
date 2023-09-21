@@ -1,4 +1,4 @@
-import type { AppProps } from 'next/app';
+import type { AppProps, NextWebVitalsMetric } from 'next/app';
 import React, { useState } from 'react';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
@@ -11,6 +11,7 @@ import { Inter } from 'next/font/google';
 import { GlobalLoadingIndicator } from '@src/components';
 import queryClient from '@src/lib/query-client';
 import theme from '@src/theme';
+import { handleMetric } from '@src/utils';
 
 import SEO from '../next-seo.config';
 
@@ -26,6 +27,14 @@ const App: React.FC<AppProps> = ({ Component, pageProps: { session, ...pageProps
         {`
           :root {
             --font-inter: ${inter.style.fontFamily};
+          }
+
+          html,
+          body,
+          body > div:first-child,
+          div#__next,
+          div#__next > div {
+            height: 100%;
           }
         `}
       </style>
@@ -44,5 +53,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps: { session, ...pageProps
     </>
   );
 };
+
+export const reportWebVitals = (metric: NextWebVitalsMetric) => handleMetric(metric);
 
 export default App;

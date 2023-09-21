@@ -5,6 +5,7 @@ export * from './usePlaylists';
 export * from './usePlaylistTracks';
 export * from './usePlaylistTracksWithAudioFeatures';
 export * from './useSavedTracks';
+export * from './useSavedTracksCount';
 export * from './useSaveUnclassified';
 export * from './useTracksAudioFeatures';
 export * from './useTranslation';

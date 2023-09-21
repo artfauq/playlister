@@ -41,18 +41,22 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ## To Do
 
-- [ ] Update `README`
-- [x] Add `i18n` support
-- [ ] Add language selector
-- [ ] Add `dark mode` support
-- [ ] Add custom home page
-- [x] Add current user badge + logout link
-- [ ] Add `SEO`
-- [ ] Add `Sentry` support
-- [ ] Design a custom `404` page
-- [ ] Buy a custom domain
-- [ ] Add `CI` pipeline
 - [ ] UI
+  - [ ] Show customized loading indicators
+  - [x] Show saved tracks playlist
   - [x] Show tracks in a table
   - [x] Display highest BPM track
   - [x] Display lowest BPM track
+- [ ] Move `saveUnclassified` logic to API
+- [ ] Add custom home page
+- [ ] Add custom `404` page
+- [ ] Add `CI` pipeline
+- [ ] Buy a custom domain
+- [ ] Add language selector
+- [ ] Add `SEO`
+- [ ] Add `Sentry` support
+- [ ] Add analytics (Fathom / Plausible / Google Analytics / Next.js Speed Insights)
+- [ ] Add `dark mode` support
+- [ ] Update `README`
+- [x] Add `i18n` support
+- [x] Add current user badge + logout link

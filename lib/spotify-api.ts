@@ -4,8 +4,14 @@ import axios, { RawAxiosRequestHeaders } from 'axios';
 
 import { BASIC_AUTH, CLIENT_ID, TOKEN_ENDPOINT } from '@src/config';
 import { apiRequest } from '@src/lib/api-client';
-import { CreatePlaylistInput, Playlist, TokenResponse, Track } from '@src/types';
-import { sortPlaylistsByName, sortTracksByName, splitArrayIntoChunks } from '@src/utils';
+import { CreatePlaylistInput, Playlist, TokenResponse, Track, UserProfile } from '@src/types';
+import {
+  playlistDto,
+  sortPlaylistsByName,
+  splitArrayIntoChunks,
+  trackDto,
+  userProfileDto,
+} from '@src/utils';
 
 /**
  * Get an access token for the Spotify API.
@@ -30,8 +36,10 @@ export const refreshAccessToken = async (refreshToken: string) => {
 /**
  * Get profile information about the current user.
  */
-export const fetchUserProfile = async () => {
-  return apiRequest<SpotifyApi.UserProfileResponse>({ url: '/me' });
+export const fetchUserProfile = async (): Promise<UserProfile> => {
+  const user = await apiRequest<SpotifyApi.UserProfileResponse>({ url: '/me' });
+
+  return userProfileDto(user);
 };
 
 /**
@@ -59,15 +67,16 @@ export const fetchUserPlaylists = async (headers?: RawAxiosRequestHeaders): Prom
     data.next = nextData.next;
   }
 
-  return sortPlaylistsByName(playlists);
+  return sortPlaylistsByName(playlists.map(playlistDto));
 };
 
 /**
  * Get the current user's saved tracks.
  */
-export const fetchSavedTracks = async (): Promise<Track[]> => {
+export const fetchSavedTracks = async (headers?: RawAxiosRequestHeaders): Promise<Track[]> => {
   const data = await apiRequest<SpotifyApi.UsersSavedTracksResponse>({
     url: '/me/tracks',
+    headers,
     params: {
       limit: 50,
     },
@@ -83,9 +92,24 @@ export const fetchSavedTracks = async (): Promise<Track[]> => {
     data.next = nextData.next;
   }
 
-  const tracks: Track[] = res.filter(track => track.track != null).map(track => track.track);
+  const tracks = res.map(track => trackDto(track.track, track.added_at));
 
-  return sortTracksByName(tracks);
+  return [...tracks].sort((a, b) => a.name.localeCompare(b.name));
+};
+
+/**
+ * Get the number of tracks saved by the current user.
+ */
+export const countSavedTracks = async (headers?: RawAxiosRequestHeaders): Promise<number> => {
+  const data = await apiRequest<SpotifyApi.UsersSavedTracksResponse>({
+    url: '/me/tracks',
+    headers,
+    params: {
+      limit: 1,
+    },
+  });
+
+  return data.total;
 };
 
 /**
@@ -116,38 +140,44 @@ export const fetchPlaylistTracks = async (
     data.next = nextData.next;
   }
 
-  const tracks = res.filter(track => track.track != null).map(track => track.track) as Track[];
-
-  return sortTracksByName(tracks);
+  return res
+    .reduce<Track[]>(
+      (acc, track) => (track.track ? [...acc, trackDto(track.track, track.added_at)] : acc),
+      [],
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
 };
 
 /**
  * Get playlist details.
  */
-export const fetchPlaylist = async (playlistId: string, headers?: RawAxiosRequestHeaders) => {
+export const fetchPlaylist = async (
+  playlistId: string,
+  headers?: RawAxiosRequestHeaders,
+): Promise<Playlist> => {
   return apiRequest<SpotifyApi.SinglePlaylistResponse>({
     url: `/playlists/${playlistId}`,
     headers,
-  });
+  }).then(playlistDto);
 };
 
 /**
  * Create a playlist.
  */
-export const createPlaylist = async (values: CreatePlaylistInput) => {
+export const createPlaylist = async (values: CreatePlaylistInput): Promise<Playlist> => {
   const { id: userId } = await fetchUserProfile();
 
   return apiRequest<SpotifyApi.CreatePlaylistResponse>({
     method: 'POST',
     url: `/users/${userId}/playlists`,
     data: JSON.stringify(values),
-  });
+  }).then(playlistDto);
 };
 
 /**
  * Add tracks to a playlist.
  */
-export const addTracksToPlaylist = async (playlistId: string, tracks: Track[]) => {
+export const addTracksToPlaylist = async (playlistId: string, tracks: Track[]): Promise<void> => {
   if (!tracks.length) return;
 
   await Promise.all(
@@ -156,7 +186,7 @@ export const addTracksToPlaylist = async (playlistId: string, tracks: Track[]) =
         method: 'POST',
         url: `/playlists/${playlistId}/tracks`,
         data: JSON.stringify({
-          uris: tracksChunk.map(track => track.linked_from?.uri ?? track.uri),
+          uris: tracksChunk.map(track => track.linkedFrom?.uri ?? track.uri),
         }),
       });
     }),
@@ -166,7 +196,10 @@ export const addTracksToPlaylist = async (playlistId: string, tracks: Track[]) =
 /**
  * Remove tracks from a playlist.
  */
-export const removeTracksFromPlaylist = async (playlistId: string, tracks: Track[]) => {
+export const removeTracksFromPlaylist = async (
+  playlistId: string,
+  tracks: Track[],
+): Promise<void> => {
   if (!tracks.length) return;
 
   await Promise.all(
@@ -176,7 +209,7 @@ export const removeTracksFromPlaylist = async (playlistId: string, tracks: Track
         url: `/playlists/${playlistId}/tracks`,
         data: JSON.stringify({
           tracks: tracksChunk.map(track => ({
-            uri: track.linked_from?.uri ?? track.uri,
+            uri: track.linkedFrom?.uri ?? track.uri,
           })),
         }),
       });

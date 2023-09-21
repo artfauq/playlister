@@ -6,7 +6,7 @@ import { PlaylistHeader } from '@src/components/PlaylistHeader';
 import { Playlist } from '@src/types';
 
 type Props = CardProps & {
-  playlist: Playlist;
+  playlist: Pick<Playlist, 'coverImage' | 'name' | 'trackCount'>;
   isSelected?: boolean;
 };
 
