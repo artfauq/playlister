@@ -9,11 +9,10 @@ import { DefaultSeo } from 'next-seo';
 import { Inter } from 'next/font/google';
 
 import { GlobalLoadingIndicator } from '@src/components';
+import { defaultSEOConfig } from '@src/config';
 import queryClient from '@src/lib/query-client';
 import theme from '@src/theme';
 import { handleMetric } from '@src/utils';
-
-import SEO from '../next-seo.config';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -42,7 +41,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps: { session, ...pageProps
         <QueryClientProvider client={client}>
           <Hydrate state={pageProps.dehydratedState}>
             <ChakraBaseProvider theme={theme} resetCSS>
-              <DefaultSeo {...SEO} />
+              <DefaultSeo {...defaultSEOConfig} />
               <Component {...pageProps} />
               <GlobalLoadingIndicator />
               <ReactQueryDevtools />

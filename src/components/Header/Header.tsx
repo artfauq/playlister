@@ -7,7 +7,8 @@ import setLanguage from 'next-translate/setLanguage';
 import { CiLogout } from 'react-icons/ci';
 
 import { useAppTranslation, useCurrentUser } from '@src/hooks';
-import i18nConfig from '@src/i18n.json';
+
+import i18nConfig from '../../../i18n.json';
 
 import { BackButton } from './BackButton';
 

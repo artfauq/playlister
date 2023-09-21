@@ -11,7 +11,7 @@
     "format:check": "yarn prettier --check --ignore-unknown .",
     "format:write": "yarn prettier --write --ignore-unknown .",
     "generate:component": "npx generate-react-cli component",
-    "generate:theme": "chakra-cli tokens theme/index.ts",
+    "generate:theme": "chakra-cli tokens src/theme/index.ts",
     "postinstall": "yarn generate:theme",
     "precommit": "lint-staged",
     "prepare": "husky install"

@@ -1,7 +1,7 @@
 import NextAuth, { Account, AuthOptions, CallbacksOptions } from 'next-auth';
 import SpotifyProvider from 'next-auth/providers/spotify';
 
-import { AUTHORIZE_ENDPOINT, CLIENT_ID, CLIENT_SECRET, scope } from '@src/config';
+import { spotifyConfig } from '@src/config';
 import { refreshAccessToken } from '@src/lib/spotify-api';
 
 const isValidAccount = (account: Account | {} | null): account is Account => {
@@ -11,9 +11,9 @@ const isValidAccount = (account: Account | {} | null): account is Account => {
 export const authOptions: AuthOptions = {
   providers: [
     SpotifyProvider({
-      authorization: `${AUTHORIZE_ENDPOINT}?scope=${scope}`,
-      clientId: CLIENT_ID,
-      clientSecret: CLIENT_SECRET,
+      authorization: `https://accounts.spotify.com/authorize?scope=${spotifyConfig.scope}`,
+      clientId: spotifyConfig.clientId,
+      clientSecret: spotifyConfig.clientSecret,
     }),
   ],
   callbacks: {

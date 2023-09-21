@@ -105,7 +105,6 @@ module.exports = {
     ],
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
-    // '@typescript-eslint/indent': 'off',
     '@typescript-eslint/naming-convention': [
       'error',
       {

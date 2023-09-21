@@ -1,7 +1,7 @@
 {
   "component": {
     "default": {
-      "path": "components",
+      "path": "src/components",
       "withStyle": false,
       "withTest": false,
       "withStory": false,

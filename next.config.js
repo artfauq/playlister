@@ -3,7 +3,7 @@ const nextTranslate = require('next-translate-plugin');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    dirs: ['components', 'config', 'hooks', 'lib', 'modules', 'pages', 'theme', 'types', 'utils'],
+    dirs: ['src'],
   },
   i18n: {
     localeDetection: false,

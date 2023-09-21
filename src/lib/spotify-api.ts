@@ -2,7 +2,7 @@ import { stringify } from 'querystring';
 
 import axios, { RawAxiosRequestHeaders } from 'axios';
 
-import { BASIC_AUTH, CLIENT_ID, TOKEN_ENDPOINT } from '@src/config';
+import { spotifyConfig } from '@src/config';
 import { apiRequest } from '@src/lib/api-client';
 import { CreatePlaylistInput, Playlist, TokenResponse, Track, UserProfile } from '@src/types';
 import {
@@ -17,15 +17,18 @@ import {
  * Get an access token for the Spotify API.
  */
 export const refreshAccessToken = async (refreshToken: string) => {
+  const { clientId, clientSecret } = spotifyConfig;
   const data = stringify({
-    client_id: CLIENT_ID,
+    client_id: clientId,
     grant_type: 'refresh_token',
     refresh_token: refreshToken,
   });
 
-  const response = await axios.post<TokenResponse>(TOKEN_ENDPOINT, data, {
+  const basicAuth = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+
+  const response = await axios.post<TokenResponse>('https://accounts.spotify.com/api/token', data, {
     headers: {
-      'Authorization': `Basic ${BASIC_AUTH}`,
+      'Authorization': `Basic ${basicAuth}`,
       'Content-Type': 'application/x-www-form-urlencoded',
     },
   });

@@ -1,11 +1,10 @@
 import axios, { AxiosRequestConfig, isAxiosError } from 'axios';
 import { getSession } from 'next-auth/react';
 
-import { API_URL } from '@src/config';
 import { TokenResponse } from '@src/types';
 
 export const apiClient = axios.create({
-  baseURL: API_URL,
+  baseURL: 'https://api.spotify.com/v1',
   headers: {
     'Accept': 'application/json',
     'Content-Type': 'application/x-www-form-urlencoded',
