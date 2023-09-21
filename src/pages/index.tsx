@@ -1,7 +1,7 @@
 import { GetServerSideProps, NextPage } from 'next';
 import React from 'react';
 
-import { Button } from '@chakra-ui/react';
+import { Button, Center } from '@chakra-ui/react';
 import { dehydrate, DehydratedState, QueryClient } from '@tanstack/react-query';
 import { getServerSession, Session } from 'next-auth';
 import { signIn } from 'next-auth/react';
@@ -49,9 +49,11 @@ const Home: NextPage<Props> = () => {
 
   if (!currentUser)
     return (
-      <Button onClick={() => signIn()} variant="outline">
-        {t('common:signIn')}
-      </Button>
+      <Center h="100%">
+        <Button onClick={() => signIn()} variant="outline">
+          {t('common:signIn')}
+        </Button>
+      </Center>
     );
 
   return <PlaylistList />;
