@@ -7,6 +7,7 @@
     "lowestBpm": "Lowest BPM"
   },
   "savedTracks": "Liked songs",
+  "saveUnclassified": "Refresh",
   "trackCount": {
     "0": "{{count}} song",
     "one": "{{count}} song",

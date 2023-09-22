@@ -14,5 +14,5 @@ export const Loader: React.FC<Props> = ({
 }) => {
   const spinner = <Spinner color={color} size={size} {...rest} />;
 
-  return fullScreen ? <Center h="100%">{spinner}</Center> : spinner;
+  return fullScreen ? <Center flex={1}>{spinner}</Center> : spinner;
 };

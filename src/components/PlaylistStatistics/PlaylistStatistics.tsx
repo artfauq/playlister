@@ -13,7 +13,7 @@ import {
 
 import { Loader } from '@src/components/Loader';
 import { useAppTranslation, useDuplicatedTracks } from '@src/hooks';
-import { TrackWithAudioFeatures } from '@src/types';
+import { Playlist, TrackWithAudioFeatures } from '@src/types';
 import {
   getHighestBpmTrack,
   getLowestBpmTrack,
@@ -22,14 +22,13 @@ import {
 } from '@src/utils';
 
 type Props = {
-  playlistId: string;
+  playlist: Playlist;
   tracks: TrackWithAudioFeatures[];
 };
 
-export const PlaylistStatistics: React.FC<Props> = ({ playlistId, tracks }) => {
+export const PlaylistStatistics: React.FC<Props> = ({ playlist, tracks }) => {
   const { t } = useAppTranslation();
-
-  const { duplicatedTracks, fetching: fetchingDuplicatedTracks } = useDuplicatedTracks(playlistId);
+  const { duplicatedTracks, fetching: fetchingDuplicatedTracks } = useDuplicatedTracks(playlist);
 
   const averageBpm = useMemo(() => getTracksAverageBpm(tracks), [tracks]);
   const highestBpmTrack = useMemo(() => getHighestBpmTrack(tracks), [tracks]);

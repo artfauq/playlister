@@ -15,7 +15,8 @@ export const BackButton: React.FC = () => {
     <Box />
   ) : (
     <Link href="/">
-      <Icon as={RxArrowLeft} /> {t('common:back')}
+      <Icon as={RxArrowLeft} boxSize="4" />
+      {t('common:back')}
     </Link>
   );
 };

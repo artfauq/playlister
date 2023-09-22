@@ -1,4 +1,4 @@
-import { REMASTERED_TRACK_REGEX } from '@src/lib';
+import { REMASTERED_TRACK_REGEX } from '@src/constants';
 import { DuplicateTrack, Track, TrackWithAudioFeatures } from '@src/types';
 
 export const trackDto = (track: SpotifyApi.TrackObjectFull, addedAt: string): Track => {
@@ -102,8 +102,6 @@ export const findDuplicateTracks = (tracks: Track[]): DuplicateTrack[] => {
         trackNamesAndArtists.add(trackNameAndArtist);
       }
     });
-
-  console.log('duplicateTracks', duplicateTracks);
 
   return duplicateTracks;
 };

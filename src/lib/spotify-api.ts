@@ -5,13 +5,7 @@ import { getSession } from 'next-auth/react';
 
 import { spotifyConfig } from '@src/config';
 import { CreatePlaylistInput, Playlist, TokenResponse, Track, UserProfile } from '@src/types';
-import {
-  playlistDto,
-  sortPlaylistsByName,
-  splitArrayIntoChunks,
-  trackDto,
-  userProfileDto,
-} from '@src/utils';
+import { playlistDto, splitArrayIntoChunks, userProfileDto } from '@src/utils';
 
 export const spotifyClient = axios.create({
   baseURL: 'https://api.spotify.com/v1',
@@ -65,7 +59,7 @@ spotifyClient.interceptors.response.use(
 /**
  * Make a request to the Spotify API.
  */
-const apiRequest = async <TData>(
+export const apiRequest = async <TData>(
   config: AxiosRequestConfig = {
     method: 'GET',
   },
@@ -136,55 +130,49 @@ export const fetchUserProfile = async (): Promise<UserProfile> => {
 /**
  * Get the current user's playlists.
  */
-export const fetchUserPlaylists = async (headers?: RawAxiosRequestHeaders): Promise<Playlist[]> => {
-  const data = await apiRequest<SpotifyApi.ListOfUsersPlaylistsResponse>({
+export const fetchUserPlaylists = async (): Promise<Playlist[]> => {
+  const playlists = await fetchPaginatedData<SpotifyApi.PlaylistObjectSimplified>({
     url: '/me/playlists',
-    headers,
     params: {
       limit: 50,
     },
   });
 
-  const playlists = [...data.items];
-
-  while (data.next) {
-    const nextData = await apiRequest<SpotifyApi.ListOfUsersPlaylistsResponse>({
-      url: data.next,
-      headers,
-    });
-
-    playlists.push(...nextData.items);
-
-    data.next = nextData.next;
-  }
-
-  return sortPlaylistsByName(playlists.map(playlistDto));
+  return playlists.map(playlistDto).sort((a, b) => a.name.localeCompare(b.name));
 };
 
 /**
  * Get the current user's saved tracks.
  */
-export const fetchSavedTracks = async (headers?: RawAxiosRequestHeaders): Promise<Track[]> => {
+export function fetchSavedTracks(): Promise<SpotifyApi.SavedTrackObject[]>;
+
+export function fetchSavedTracks(params: {
+  limit: number;
+  offset: number;
+}): Promise<SpotifyApi.UsersSavedTracksResponse>;
+
+export async function fetchSavedTracks(params?: { limit: number; offset: number }) {
+  if (params) {
+    return apiRequest<SpotifyApi.UsersSavedTracksResponse>({
+      url: '/me/tracks',
+      params,
+    });
+  }
+
   return fetchPaginatedData<SpotifyApi.SavedTrackObject>({
     url: '/me/tracks',
-    headers,
     params: {
       limit: 50,
     },
-  }).then(res => {
-    return res
-      .map(track => trackDto(track.track, track.added_at))
-      .sort((a, b) => a.name.localeCompare(b.name));
   });
-};
+}
 
 /**
  * Get the number of tracks saved by the current user.
  */
-export const countSavedTracks = async (headers?: RawAxiosRequestHeaders): Promise<number> => {
+export const countSavedTracks = async (): Promise<number> => {
   const data = await apiRequest<SpotifyApi.UsersSavedTracksResponse>({
     url: '/me/tracks',
-    headers,
     params: {
       limit: 1,
     },
@@ -196,25 +184,31 @@ export const countSavedTracks = async (headers?: RawAxiosRequestHeaders): Promis
 /**
  * Get the tracks of a playlist owned by the current user.
  */
-export const fetchPlaylistTracks = async (
+export function fetchPlaylistTracks(playlistId: string): Promise<SpotifyApi.PlaylistTrackObject[]>;
+
+export function fetchPlaylistTracks(
   playlistId: string,
-  headers?: RawAxiosRequestHeaders,
-): Promise<Track[]> => {
+  params: { limit: number; offset: number },
+): Promise<SpotifyApi.PlaylistTrackResponse>;
+
+export async function fetchPlaylistTracks(
+  playlistId: string,
+  params?: { limit: number; offset: number },
+) {
+  if (params) {
+    return apiRequest<SpotifyApi.PlaylistTrackResponse>({
+      url: `/playlists/${playlistId}/tracks`,
+      params,
+    });
+  }
+
   return fetchPaginatedData<SpotifyApi.PlaylistTrackObject>({
     url: `/playlists/${playlistId}/tracks`,
-    headers,
     params: {
       limit: 100,
     },
-  }).then(res => {
-    return res
-      .reduce<Track[]>(
-        (acc, track) => (track.track ? [...acc, trackDto(track.track, track.added_at)] : acc),
-        [],
-      )
-      .sort((a, b) => a.name.localeCompare(b.name));
   });
-};
+}
 
 /**
  * Get playlist details.

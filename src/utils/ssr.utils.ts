@@ -40,8 +40,6 @@ export const SSRWrapper =
 
     const pageProps = merge(result, props);
 
-    console.log('pageProps', pageProps);
-
     return pageProps;
   };
 

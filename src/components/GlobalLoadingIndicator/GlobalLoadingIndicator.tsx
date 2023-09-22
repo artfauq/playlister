@@ -14,7 +14,7 @@ export const GlobalLoadingIndicator: React.FC = () => {
         isClosable: false,
         position: 'top-right',
         status: 'info',
-        title: 'Queries are fetching in the background...',
+        title: 'Fetching data...',
         variant: 'subtle',
       });
     }

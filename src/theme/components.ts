@@ -11,7 +11,14 @@ export const components: ThemeComponents = {
   Card,
   Container,
   Heading,
-  Link,
+  Link: {
+    ...Link,
+    baseStyle: {
+      ...Link.baseStyle,
+      display: 'flex',
+      alignItems: 'center',
+    },
+  },
   Menu,
   Spinner,
   Table,

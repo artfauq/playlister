@@ -15,8 +15,14 @@ export const getServerSideProps = SSRWrapperWithSession(async ({ queryClient, se
   }
 
   await queryClient.prefetchQuery(['playlists'], () =>
-    spotifyApi.fetchUserPlaylists({
-      Authorization: `Bearer ${session.accessToken}`,
+    spotifyApi.fetchPaginatedData<SpotifyApi.PlaylistObjectSimplified>({
+      url: '/me/playlists',
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+      },
+      params: {
+        limit: 50,
+      },
     }),
   );
 

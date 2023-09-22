@@ -10,5 +10,5 @@ export * from './PlaylistSelect';
 export * from './PlaylistStatistics';
 export * from './PlaylistTrackCount';
 export * from './PlaylistTrackList';
-export * from './SaveUnclassified';
+export * from './SaveUnclassifiedButton';
 export * from './Table';

@@ -1,6 +1,6 @@
 import { usePlaylistTracks } from '@src/hooks/usePlaylistTracks';
 import { useTracksAudioFeatures } from '@src/hooks/useTracksAudioFeatures';
-import { TrackWithAudioFeatures } from '@src/types';
+import { Playlist, TrackWithAudioFeatures } from '@src/types';
 import { getSortedTrackIds } from '@src/utils';
 
 type UsePlaylistTracksWithAudioFeaturesResult =
@@ -14,9 +14,9 @@ type UsePlaylistTracksWithAudioFeaturesResult =
     };
 
 export const usePlaylistTracksWithAudioFeatures = (
-  playlistId: string,
+  playlist: Playlist,
 ): UsePlaylistTracksWithAudioFeaturesResult => {
-  const { data: tracks } = usePlaylistTracks(playlistId);
+  const { data: tracks } = usePlaylistTracks(playlist);
   const { data: audioFeatures } = useTracksAudioFeatures(tracks ? getSortedTrackIds(tracks) : []);
 
   if (!tracks || !audioFeatures) {

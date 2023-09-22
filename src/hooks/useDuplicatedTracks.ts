@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-import { DuplicateTrack } from '@src/types';
+import { DuplicateTrack, Playlist } from '@src/types';
 import { findDuplicateTracks } from '@src/utils';
 
 import { usePlaylistTracks } from './usePlaylistTracks';
@@ -15,8 +15,8 @@ type UseDuplicatedTracksResult =
       fetching: true;
     };
 
-export const useDuplicatedTracks = (playlistId: string): UseDuplicatedTracksResult => {
-  const { data: playlistTracks } = usePlaylistTracks(playlistId);
+export const useDuplicatedTracks = (playlist: Playlist): UseDuplicatedTracksResult => {
+  const { data: playlistTracks } = usePlaylistTracks(playlist);
 
   const duplicatedTracks = useMemo(() => {
     if (!playlistTracks) return undefined;
