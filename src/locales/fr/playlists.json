@@ -2,13 +2,14 @@
   "myPlaylists": "Mes playlists",
   "statistics": {
     "averageBpm": "BPM moyen",
-    "duplicatedTracks": "Morceaux dupliqués",
+    "duplicatedTracks": "Titres dupliqués",
     "highestBpm": "BPM le plus élevé",
     "lowestBpm": "BPM le plus bas"
   },
-  "savedTracks": "Morceaux sauvegardés",
-  "tracksCount": {
-    "one": "{{count}} morceau",
-    "other": "{{count}} morceaux"
+  "savedTracks": "Titres likés",
+  "trackCount": {
+    "0": "{{count}} titre",
+    "one": "{{count}} titre",
+    "other": "{{count}} titres"
   }
 }
