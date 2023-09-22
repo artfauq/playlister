@@ -1,54 +1,31 @@
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import React from 'react';
 
 import { Center, HStack } from '@chakra-ui/react';
-import { dehydrate, DehydratedState, QueryClient } from '@tanstack/react-query';
-import { getServerSession, Session } from 'next-auth';
 
 import { Layout, Loader, PlaylistHeader, PlaylistTrackList } from '@src/components';
 import { useAppTranslation, useSavedTracks, useSavedTracksCount } from '@src/hooks';
-import { countSavedTracks, fetchSavedTracks } from '@src/lib/spotify-api';
-import { authOptions } from '@src/pages/api/auth/[...nextauth]';
+import { spotifyApi } from '@src/lib';
+import { SSRWrapperWithSession } from '@src/utils';
 
-type Props = {
-  dehydratedState: DehydratedState;
-  session: Session | null;
-};
-
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
-  const queryClient = new QueryClient();
-
-  const session = await getServerSession(req, res, authOptions);
-
-  if (!session?.accessToken) {
-    return {
-      redirect: {
-        destination: '/',
-        permanent: false,
-      },
-    };
-  }
-
+export const getServerSideProps = SSRWrapperWithSession(async ({ queryClient, session }) => {
   await queryClient.prefetchQuery(['savedTracks'], () =>
-    fetchSavedTracks({
+    spotifyApi.fetchSavedTracks({
       Authorization: `Bearer ${session.accessToken}`,
     }),
   );
   await queryClient.prefetchQuery(['savedTracksCount'], () =>
-    countSavedTracks({
+    spotifyApi.countSavedTracks({
       Authorization: `Bearer ${session.accessToken}`,
     }),
   );
 
   return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-      session,
-    },
+    props: {},
   };
-};
+});
 
-const SavedTracksPage: NextPage<Props> = () => {
+const SavedTracksPage: NextPage = () => {
   const { t } = useAppTranslation();
   const { data: playlistTracks, status: savedTracksStatus } = useSavedTracks();
   const { data: savedTracksCount, status: savedTracksCountStatus } = useSavedTracksCount();

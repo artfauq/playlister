@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchUserPlaylists } from '@src/lib/spotify-api';
+import { spotifyApi } from '@src/lib';
 
 export const usePlaylists = () =>
   useQuery({
     queryKey: ['playlists'],
-    queryFn: () => fetchUserPlaylists(),
+    queryFn: () => spotifyApi.fetchUserPlaylists(),
   });

@@ -4,11 +4,11 @@ export type Track = {
   album: SpotifyApi.AlbumObjectSimplified;
   artists: SpotifyApi.ArtistObjectSimplified[];
   durationMs: number;
-  isLocal?: boolean;
-  isrc?: string;
-  linkedFrom?: {
+  isLocal: boolean | null;
+  isrc: string | null;
+  linkedFrom: {
     uri: string;
-  };
+  } | null;
   name: string;
   uri: string;
 };

@@ -56,6 +56,7 @@ module.exports = {
 
     // eslint-plugin-import rules
     'import/prefer-default-export': 'off',
+    'import/no-cycle': 'warn',
     'import/no-extraneous-dependencies': 'off',
     'import/no-unresolved': 'error',
     'import/order': [
@@ -105,17 +106,11 @@ module.exports = {
     ],
     '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
-    '@typescript-eslint/naming-convention': [
-      'error',
-      {
-        selector: 'typeParameter',
-        format: ['PascalCase'],
-        custom: { regex: '^T[A-Z]', match: true },
-      },
-    ],
     '@typescript-eslint/no-empty-interface': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-floating-promises': 'off',
     '@typescript-eslint/no-misused-promises': 'warn',
+    '@typescript-eslint/no-redundant-type-constituents': 'off',
     '@typescript-eslint/no-restricted-imports': [
       'warn',
       {

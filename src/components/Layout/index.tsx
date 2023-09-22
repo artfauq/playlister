@@ -11,7 +11,7 @@ type Props = {
 
 export const Layout: React.FC<Props> = ({ children }) => {
   return (
-    <Container as="main" maxW={['none', '8xl']} h="100%" py="4">
+    <Container as="main" h="100%" maxW={['none', '6xl']} py="4">
       <VStack align="stretch" minH="100%" spacing="4">
         <Header />
         <VStack align="stretch" flex={1} spacing={8}>

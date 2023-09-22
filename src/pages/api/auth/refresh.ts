@@ -1,22 +1,11 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-
-import { getServerSession } from 'next-auth';
-
-import { refreshAccessToken } from '@src/lib/spotify-api';
-import { authOptions } from '@src/pages/api/auth/[...nextauth]';
+import { spotifyApi } from '@src/lib';
 import { TokenResponse } from '@src/types';
+import { authenticatedHandler } from '@src/utils';
 
 type ResponseData = TokenResponse;
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse<ResponseData>) {
-  const session = await getServerSession(req, res, authOptions);
+export default authenticatedHandler<ResponseData>(async (req, res) => {
+  const token = await spotifyApi.refreshAccessToken(req.session.refreshToken);
 
-  if (!session) {
-    res.status(401);
-    return;
-  }
-
-  const accessToken = await refreshAccessToken(session.refreshToken);
-
-  res.status(200).json(accessToken);
-}
+  res.status(200).json(token);
+});

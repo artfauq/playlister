@@ -10,7 +10,7 @@ import { Inter } from 'next/font/google';
 
 import { GlobalLoadingIndicator } from '@src/components';
 import { defaultSEOConfig } from '@src/config';
-import queryClient from '@src/lib/query-client';
+import { queryClient } from '@src/lib';
 import theme from '@src/theme';
 import { handleMetric } from '@src/utils';
 

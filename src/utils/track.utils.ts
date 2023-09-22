@@ -1,4 +1,4 @@
-import { REMASTERED_TRACK_REGEX } from '@src/lib/constants';
+import { REMASTERED_TRACK_REGEX } from '@src/lib';
 import { DuplicateTrack, Track, TrackWithAudioFeatures } from '@src/types';
 
 export const trackDto = (track: SpotifyApi.TrackObjectFull, addedAt: string): Track => {
@@ -8,9 +8,9 @@ export const trackDto = (track: SpotifyApi.TrackObjectFull, addedAt: string): Tr
     album: track.album,
     artists: track.artists,
     durationMs: track.duration_ms,
-    isLocal: track.is_local,
-    isrc: track.external_ids?.isrc,
-    linkedFrom: track.linked_from,
+    isLocal: track.is_local ?? null,
+    isrc: track.external_ids?.isrc ?? null,
+    linkedFrom: track.linked_from ?? null,
     name: track.name,
     uri: track.uri,
   };

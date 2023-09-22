@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { fetchSavedTracks } from '@src/lib/spotify-api';
+import { spotifyApi } from '@src/lib';
 
 export const useSavedTracks = () =>
   useQuery({
     queryKey: ['savedTracks'],
-    queryFn: () => fetchSavedTracks(),
+    queryFn: () => spotifyApi.fetchSavedTracks(),
   });

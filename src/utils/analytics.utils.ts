@@ -1,7 +1,7 @@
 import { NextWebVitalsMetric } from 'next/app';
 
 export const handleMetric = (metric: NextWebVitalsMetric) => {
-  console.log(metric);
+  // console.log(metric);
 
   if (metric.label === 'web-vital') {
     switch (metric.name) {

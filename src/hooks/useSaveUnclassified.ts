@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { addTracksToPlaylist, removeTracksFromPlaylist } from '@src/lib/spotify-api';
+import { spotifyApi } from '@src/lib';
 import { Track } from '@src/types';
 
 import { usePlaylistTracks } from './usePlaylistTracks';
@@ -22,11 +22,11 @@ export const useSaveUnclassified = (unclassifiedPlaylistId: string, removeClassi
       );
 
       if (toRemoveTracks.length && removeClassified) {
-        await removeTracksFromPlaylist(unclassifiedPlaylistId, toRemoveTracks);
+        await spotifyApi.removeTracksFromPlaylist(unclassifiedPlaylistId, toRemoveTracks);
       }
 
       if (toAddTracks.length) {
-        await addTracksToPlaylist(unclassifiedPlaylistId, toAddTracks);
+        await spotifyApi.addTracksToPlaylist(unclassifiedPlaylistId, toAddTracks);
       }
 
       return {

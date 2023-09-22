@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { countSavedTracks } from '@src/lib/spotify-api';
+import { spotifyApi } from '@src/lib';
 
 export const useSavedTracksCount = () =>
   useQuery({
     queryKey: ['savedTracksCount'],
-    queryFn: () => countSavedTracks(),
+    queryFn: () => spotifyApi.countSavedTracks(),
   });

@@ -1,13 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 
-import queryClient from '@src/lib/query-client';
-import { fetchPlaylist } from '@src/lib/spotify-api';
+import { queryClient, spotifyApi } from '@src/lib';
 import { Playlist } from '@src/types';
 
 export const usePlaylist = (playlistId: string) =>
   useQuery({
     queryKey: ['playlist', playlistId],
-    queryFn: () => fetchPlaylist(playlistId),
+    queryFn: () => spotifyApi.fetchPlaylist(playlistId),
     placeholderData: () => {
       const playlists = queryClient.getQueryData<Playlist[]>(['playlists']);
 

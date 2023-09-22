@@ -1,49 +1,31 @@
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import React from 'react';
 
 import { Button, Center } from '@chakra-ui/react';
-import { dehydrate, DehydratedState, QueryClient } from '@tanstack/react-query';
-import { getServerSession, Session } from 'next-auth';
 import { signIn } from 'next-auth/react';
 
 import { useAppTranslation, useCurrentUser } from '@src/hooks';
-import { fetchUserPlaylists } from '@src/lib/spotify-api';
+import { spotifyApi } from '@src/lib';
 import { PlaylistList } from '@src/modules/PlaylistsPage';
-import { authOptions } from '@src/pages/api/auth/[...nextauth]';
+import { SSRWrapperWithSession } from '@src/utils';
 
-type Props = {
-  dehydratedState?: DehydratedState;
-  session: Session | null;
-};
-
-export const getServerSideProps: GetServerSideProps<Props> = async ({ req, res }) => {
-  const queryClient = new QueryClient();
-
-  const session = await getServerSession(req, res, authOptions);
-
-  if (!session?.accessToken) {
-    return {
-      props: {
-        session: null,
-      },
-    };
+export const getServerSideProps = SSRWrapperWithSession(async ({ queryClient, session }) => {
+  if (!session) {
+    return { props: {} };
   }
 
   await queryClient.prefetchQuery(['playlists'], () =>
-    fetchUserPlaylists({
+    spotifyApi.fetchUserPlaylists({
       Authorization: `Bearer ${session.accessToken}`,
     }),
   );
 
   return {
-    props: {
-      dehydratedState: dehydrate(queryClient),
-      session,
-    },
+    props: {},
   };
-};
+}, false);
 
-const Home: NextPage<Props> = () => {
+const Home: NextPage = () => {
   const currentUser = useCurrentUser();
   const { t } = useAppTranslation();
 

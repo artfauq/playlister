@@ -1,9 +1,9 @@
 import { stringify } from 'querystring';
 
-import axios, { RawAxiosRequestHeaders } from 'axios';
+import axios, { AxiosRequestConfig, isAxiosError, RawAxiosRequestHeaders } from 'axios';
+import { getSession } from 'next-auth/react';
 
 import { spotifyConfig } from '@src/config';
-import { apiRequest } from '@src/lib/api-client';
 import { CreatePlaylistInput, Playlist, TokenResponse, Track, UserProfile } from '@src/types';
 import {
   playlistDto,
@@ -13,11 +13,99 @@ import {
   userProfileDto,
 } from '@src/utils';
 
+export const spotifyClient = axios.create({
+  baseURL: 'https://api.spotify.com/v1',
+  headers: {
+    'Accept': 'application/json',
+    'Content-Type': 'application/x-www-form-urlencoded',
+  },
+});
+
+spotifyClient.interceptors.request.use(async config => {
+  const authHeader = config.headers.get('Authorization');
+
+  if (!authHeader) {
+    const session = await getSession();
+    const accessToken = session?.accessToken;
+
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+      spotifyClient.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+    }
+  }
+
+  return config;
+});
+
+spotifyClient.interceptors.response.use(
+  response => response,
+  async error => {
+    const originalRequest = error.config;
+
+    if (!isAxiosError(error) || !error.response) {
+      return Promise.reject(error);
+    }
+
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      const {
+        data: { access_token: accessToken },
+      } = await axios.post<TokenResponse>('/api/auth/refresh');
+
+      spotifyClient.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+
+      return spotifyClient(originalRequest);
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+/**
+ * Make a request to the Spotify API.
+ */
+const apiRequest = async <TData>(
+  config: AxiosRequestConfig = {
+    method: 'GET',
+  },
+) => {
+  return spotifyClient<TData>(config).then(response => response.data);
+};
+
+// Taken from @types/spotify-api
+type PagingObject<T> = {
+  href: string;
+  items: T[];
+  limit: number;
+  next: string | null;
+  offset: number;
+  previous: string | null;
+  total: number;
+};
+
+export const fetchPaginatedData = async <T>(config?: AxiosRequestConfig): Promise<T[]> => {
+  const data = await apiRequest<PagingObject<T>>(config);
+
+  const res = [...data.items];
+
+  while (data.next) {
+    const nextData = await apiRequest<PagingObject<T>>({ ...config, url: data.next });
+
+    res.push(...nextData.items);
+
+    data.next = nextData.next;
+  }
+
+  return res;
+};
+
 /**
  * Get an access token for the Spotify API.
  */
 export const refreshAccessToken = async (refreshToken: string) => {
   const { clientId, clientSecret } = spotifyConfig;
+
   const data = stringify({
     client_id: clientId,
     grant_type: 'refresh_token',
@@ -77,27 +165,17 @@ export const fetchUserPlaylists = async (headers?: RawAxiosRequestHeaders): Prom
  * Get the current user's saved tracks.
  */
 export const fetchSavedTracks = async (headers?: RawAxiosRequestHeaders): Promise<Track[]> => {
-  const data = await apiRequest<SpotifyApi.UsersSavedTracksResponse>({
+  return fetchPaginatedData<SpotifyApi.SavedTrackObject>({
     url: '/me/tracks',
     headers,
     params: {
       limit: 50,
     },
+  }).then(res => {
+    return res
+      .map(track => trackDto(track.track, track.added_at))
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
-
-  const res = [...data.items];
-
-  while (data.next) {
-    const nextData = await apiRequest<SpotifyApi.UsersSavedTracksResponse>({ url: data.next });
-
-    res.push(...nextData.items);
-
-    data.next = nextData.next;
-  }
-
-  const tracks = res.map(track => trackDto(track.track, track.added_at));
-
-  return [...tracks].sort((a, b) => a.name.localeCompare(b.name));
 };
 
 /**
@@ -122,33 +200,20 @@ export const fetchPlaylistTracks = async (
   playlistId: string,
   headers?: RawAxiosRequestHeaders,
 ): Promise<Track[]> => {
-  const data = await apiRequest<SpotifyApi.PlaylistTrackResponse>({
+  return fetchPaginatedData<SpotifyApi.PlaylistTrackObject>({
     url: `/playlists/${playlistId}/tracks`,
     headers,
     params: {
       limit: 100,
     },
+  }).then(res => {
+    return res
+      .reduce<Track[]>(
+        (acc, track) => (track.track ? [...acc, trackDto(track.track, track.added_at)] : acc),
+        [],
+      )
+      .sort((a, b) => a.name.localeCompare(b.name));
   });
-
-  const res = [...data.items];
-
-  while (data.next) {
-    const nextData = await apiRequest<SpotifyApi.PlaylistTrackResponse>({
-      url: data.next,
-      headers,
-    });
-
-    res.push(...nextData.items);
-
-    data.next = nextData.next;
-  }
-
-  return res
-    .reduce<Track[]>(
-      (acc, track) => (track.track ? [...acc, trackDto(track.track, track.added_at)] : acc),
-      [],
-    )
-    .sort((a, b) => a.name.localeCompare(b.name));
 };
 
 /**

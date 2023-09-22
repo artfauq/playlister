@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useQueries } from '@tanstack/react-query';
 
 import { usePlaylists, useSavedTracks } from '@src/hooks';
-import { fetchPlaylistTracks } from '@src/lib/spotify-api';
+import { spotifyApi } from '@src/lib';
 import { Track } from '@src/types';
 
 type UseUnclassifiedTracksResult =
@@ -26,7 +26,7 @@ export const useUnclassifiedTracks = (
       .filter(playlist => playlist.id !== unclassifiedPlaylistId)
       .map(playlist => ({
         queryKey: ['playlistTracks', playlist.id],
-        queryFn: () => fetchPlaylistTracks(playlist.id),
+        queryFn: () => spotifyApi.fetchPlaylistTracks(playlist.id),
       })),
   });
 
