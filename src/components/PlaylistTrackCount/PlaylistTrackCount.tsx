@@ -20,7 +20,7 @@ export const PlaylistTrackCount: React.FC<Props> = ({ count }) => {
       px="2"
       mb="1"
     >
-      {t('playlists:tracksCount', { count })}
+      {t('playlists:trackCount', { count })}
     </Badge>
   );
 };
