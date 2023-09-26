@@ -6,6 +6,7 @@ export type Track = {
   durationMs: number;
   isLocal: boolean | null;
   isrc: string | null;
+  isSaved: boolean;
   linkedFrom: {
     uri: string;
   } | null;

@@ -1,7 +1,11 @@
 import { REMASTERED_TRACK_REGEX } from '@src/constants';
 import { DuplicateTrack, Track, TrackWithAudioFeatures } from '@src/types';
 
-export const trackDto = (track: SpotifyApi.TrackObjectFull, addedAt: string): Readonly<Track> => {
+export const trackDto = (
+  track: SpotifyApi.TrackObjectFull,
+  addedAt: string,
+  isSaved: boolean,
+): Readonly<Track> => {
   return {
     id: track.id,
     addedAt,
@@ -10,6 +14,7 @@ export const trackDto = (track: SpotifyApi.TrackObjectFull, addedAt: string): Re
     durationMs: track.duration_ms,
     isLocal: track.is_local ?? null,
     isrc: track.external_ids?.isrc ?? null,
+    isSaved,
     linkedFrom: track.linked_from ?? null,
     name: track.name,
     uri: track.uri,

@@ -1,5 +1,6 @@
 import { useQueries, UseQueryOptions } from '@tanstack/react-query';
 
+import { useSavedTracksCount } from '@src/hooks/useSavedTracksCount';
 import { spotifyApi } from '@src/lib';
 import { Track } from '@src/types';
 import { trackDto } from '@src/utils';
@@ -16,29 +17,36 @@ type UseSavedTracksResult =
       isLoading: false;
     };
 
-export const useSavedTracks = (trackCount: number): UseSavedTracksResult => {
-  const limit = MAX_LIMIT;
+export const useSavedTracks = (): UseSavedTracksResult => {
+  const { data: savedTracksCount, isLoading: fetchingSavedTracksCount } = useSavedTracksCount();
 
   const queries = useQueries({
-    queries: Array.from({ length: Math.ceil(trackCount / limit) }, (_, i) => {
-      const offset = i * limit;
+    queries:
+      savedTracksCount != null
+        ? Array.from({ length: Math.ceil(savedTracksCount / MAX_LIMIT) }, (_, i) => {
+            const offset = i * MAX_LIMIT;
 
-      const queryOptions: UseQueryOptions<SpotifyApi.UsersSavedTracksResponse, unknown, Track[]> = {
-        queryKey: ['savedTracks', { limit, offset }],
-        queryFn: () => spotifyApi.fetchSavedTracks({ limit, offset }),
-        select: data =>
-          data.items.reduce<Track[]>(
-            (acc, track) => [...acc, trackDto(track.track, track.added_at)],
-            [],
-          ),
-        staleTime: 30 * 1000,
-      };
+            const queryOptions: UseQueryOptions<
+              SpotifyApi.UsersSavedTracksResponse,
+              unknown,
+              Track[]
+            > = {
+              queryKey: ['savedTracks', { offset }],
+              queryFn: () => spotifyApi.fetchSavedTracks({ limit: MAX_LIMIT, offset }),
+              select: data =>
+                data.items.reduce<Track[]>(
+                  (acc, track) => [...acc, trackDto(track.track, track.added_at, true)],
+                  [],
+                ),
+              staleTime: 30 * 1000,
+            };
 
-      return queryOptions;
-    }),
+            return queryOptions;
+          })
+        : [],
   });
 
-  const isLoading = queries.some(query => query.isLoading);
+  const isLoading = queries.some(query => query.isLoading) || fetchingSavedTracksCount;
 
   if (isLoading) {
     return {

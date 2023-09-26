@@ -1,8 +1,7 @@
 import { NextPage } from 'next';
 import React from 'react';
 
-import { Layout, Loader } from '@src/components';
-import { useSavedTracksCount } from '@src/hooks';
+import { Layout } from '@src/components';
 import { spotifyApi } from '@src/lib';
 import { SavedTracks } from '@src/modules/SavedTracks';
 import { SSRWrapperWithSession } from '@src/utils';
@@ -26,15 +25,9 @@ export const getServerSideProps = SSRWrapperWithSession(async ({ queryClient, se
 });
 
 const SavedTracksPage: NextPage = () => {
-  const { data: savedTrackCount, status: savedTracksCountStatus } = useSavedTracksCount();
-
-  if (savedTracksCountStatus !== 'success') {
-    return <Loader fullScreen />;
-  }
-
   return (
     <Layout>
-      <SavedTracks savedTrackCount={savedTrackCount} />
+      <SavedTracks />
     </Layout>
   );
 };

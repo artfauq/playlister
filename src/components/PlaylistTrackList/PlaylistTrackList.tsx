@@ -1,7 +1,8 @@
 import React from 'react';
 
-import { Card, Icon, Text } from '@chakra-ui/react';
+import { Card, Icon, Image, Text } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/table-core';
+import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
 import { RxClock } from 'react-icons/rx';
 
 import { Table } from '@src/components/Table';
@@ -22,6 +23,20 @@ export const PlaylistTrackList: React.FC<Props> = ({ tracks }) => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const columns: Array<ColumnDef<TrackWithAudioFeatures, any>> = [
+    columnHelper.accessor<'album', SpotifyApi.AlbumObjectSimplified>('album', {
+      id: 'cover',
+      header: '',
+      cell: ({ getValue }) => {
+        const album = getValue();
+
+        return (
+          album.images.length && (
+            <Image src={album.images[0].url} alt={album.name} boxSize={12} objectFit="cover" />
+          )
+        );
+      },
+      enableSorting: false,
+    }),
     columnHelper.accessor<'name', string>('name', {
       id: 'name',
       header: t('tracks:table.header.name'),
@@ -72,6 +87,14 @@ export const PlaylistTrackList: React.FC<Props> = ({ tracks }) => {
         isNumeric: true,
       },
       maxSize: 100,
+    }),
+    columnHelper.display({
+      id: 'actions',
+      cell: ({ row }) => {
+        const { isSaved } = row.original;
+
+        return <Icon as={isSaved ? MdFavorite : MdFavoriteBorder} boxSize={4} color="red" />;
+      },
     }),
   ];
 

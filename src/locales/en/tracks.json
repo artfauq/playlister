@@ -5,7 +5,7 @@
       "artist": "Artist",
       "tempo": "BPM",
       "duration": "Duration",
-      "name": "Name",
+      "name": "Title",
       "popularity": "Popularity"
     }
   }
