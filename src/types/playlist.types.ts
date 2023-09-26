@@ -4,10 +4,13 @@ export type Playlist = {
   id: string;
   name: string;
   description: string | null;
-  coverImage: string;
+  coverImage?: string;
   collaborative: boolean;
+  followers?: number;
   public: boolean | null;
   owner: UserProfile;
+  snapshotId: string;
+  stale: boolean;
   trackCount: number;
 };
 

@@ -1,16 +1,24 @@
 {
-  "myPlaylists": "My playlists",
-  "statistics": {
-    "averageBpm": "Average BPM",
-    "duplicatedTracks": "Duplicated songs",
-    "highestBpm": "Highest BPM",
-    "lowestBpm": "Lowest BPM"
+  "details": {
+    "followers": {
+      "one": "{{count}} follower",
+      "other": "{{count}} followers"
+    },
+    "public": "Public",
+    "private": "Private",
+    "statistics": {
+      "averageBpm": "Average BPM",
+      "duplicatedTracks": "Duplicated songs",
+      "highestBpm": "Highest BPM",
+      "lowestBpm": "Lowest BPM"
+    },
+    "trackCount": {
+      "0": "{{count}} song",
+      "one": "{{count}} song",
+      "other": "{{count}} songs"
+    }
   },
+  "myPlaylists": "My playlists",
   "savedTracks": "Liked songs",
-  "saveUnclassified": "Refresh",
-  "trackCount": {
-    "0": "{{count}} song",
-    "one": "{{count}} song",
-    "other": "{{count}} songs"
-  }
+  "saveUnclassified": "Refresh"
 }

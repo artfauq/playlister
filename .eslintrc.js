@@ -27,6 +27,7 @@ module.exports = {
     'plugin:@typescript-eslint/stylistic-type-checked',
     'plugin:@tanstack/eslint-plugin-query/recommended',
     'plugin:promise/recommended',
+    'plugin:storybook/recommended',
     'plugin:prettier/recommended',
   ],
   plugins: ['i18next', 'unused-imports'],

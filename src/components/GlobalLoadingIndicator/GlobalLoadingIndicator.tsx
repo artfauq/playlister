@@ -1,24 +1,16 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import { useToast } from '@chakra-ui/react';
+import { HStack, Spinner } from '@chakra-ui/react';
 import { useIsFetching } from '@tanstack/react-query';
 
 export const GlobalLoadingIndicator: React.FC = () => {
   const isFetching = useIsFetching();
-  const toast = useToast();
 
-  useEffect(() => {
-    if (isFetching && !toast.isActive('global-loading-indicator')) {
-      toast({
-        id: 'global-loading-indicator',
-        isClosable: false,
-        position: 'top-right',
-        status: 'info',
-        title: 'Fetching data...',
-        variant: 'subtle',
-      });
-    }
-  }, [isFetching, toast]);
+  if (!isFetching) return null;
 
-  return null;
+  return (
+    <HStack align="center" pos="absolute" bottom="12px" right="16px">
+      <Spinner color="blackAlpha.500" size="sm" />
+    </HStack>
+  );
 };

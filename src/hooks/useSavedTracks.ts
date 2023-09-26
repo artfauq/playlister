@@ -24,13 +24,14 @@ export const useSavedTracks = (trackCount: number): UseSavedTracksResult => {
       const offset = i * limit;
 
       const queryOptions: UseQueryOptions<SpotifyApi.UsersSavedTracksResponse, unknown, Track[]> = {
-        queryKey: ['savedTracks', limit, offset],
+        queryKey: ['savedTracks', { limit, offset }],
         queryFn: () => spotifyApi.fetchSavedTracks({ limit, offset }),
         select: data =>
           data.items.reduce<Track[]>(
             (acc, track) => [...acc, trackDto(track.track, track.added_at)],
             [],
           ),
+        staleTime: 30 * 1000,
       };
 
       return queryOptions;
@@ -46,10 +47,10 @@ export const useSavedTracks = (trackCount: number): UseSavedTracksResult => {
     };
   }
 
-  const data = queries
-    .reduce<Track[]>((acc, query) => (query.data ? [...acc, ...query.data] : acc), [])
-    .sort((a, b) => a.name.localeCompare(b.name));
-
+  const data = queries.reduce<Track[]>(
+    (acc, query) => (query.data ? [...acc, ...query.data] : acc),
+    [],
+  );
   return {
     data,
     isLoading: false,

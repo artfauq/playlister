@@ -2,8 +2,8 @@ module.exports = {
   locales: ['en', 'fr'],
   defaultLocale: 'en',
   pages: {
-    '*': ['common'],
-    '/': ['playlists'],
+    '*': ['common', 'errors'],
+    '/': ['home', 'playlists'],
     'rgx:^/playlists/*': ['playlists', 'tracks'],
   },
   loadLocaleFrom: async (locale, namespace) =>

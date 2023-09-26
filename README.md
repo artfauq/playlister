@@ -41,19 +41,32 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 ## To Do
 
+### Need
+
+- [x] Use `snapshot_id` property to prevent re-fetching a playlist if it hasn't changed: if we have tracks for a playlist with `snapshotId` X, we don't need to re-fetch it if it still has the same `snapshotId`
+- [x] Use `useQuery` with `limit` and `offset` to fetch all tracks
+
+### Nice to have
+
+- [ ] Add `storybook`
+- [ ] Add `page` template
+- [ ] Add top tracks and artists
 - [ ] UI
+  - [x] Add followers count to playlist details
   - [ ] Show customized loading indicators
   - [x] Show saved tracks playlist
   - [x] Show tracks in a table
   - [x] Display highest BPM track
   - [x] Display lowest BPM track
-- [ ] Move `saveUnclassified` logic to API
+- [x] Move `saveUnclassified` logic to API
 - [ ] Add custom home page
+- [ ] Replace `axios` with `ky` ?
 - [ ] Add custom `404` page
 - [ ] Add `CI` pipeline
 - [ ] Buy a custom domain
 - [ ] Add language selector
 - [ ] Add `SEO`
+- [ ] Add `next-sitemap`
 - [ ] Add `Sentry` support
 - [ ] Add analytics (Fathom / Plausible / Google Analytics / Next.js Speed Insights)
 - [ ] Add `dark mode` support

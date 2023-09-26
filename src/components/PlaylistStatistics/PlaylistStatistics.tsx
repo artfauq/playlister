@@ -28,7 +28,7 @@ type Props = {
 
 export const PlaylistStatistics: React.FC<Props> = ({ playlist, tracks }) => {
   const { t } = useAppTranslation();
-  const { duplicatedTracks, fetching: fetchingDuplicatedTracks } = useDuplicatedTracks(playlist);
+  const { duplicatedTracks, fetching: fetchingDuplicatedTracks } = useDuplicatedTracks(playlist.id);
 
   const averageBpm = useMemo(() => getTracksAverageBpm(tracks), [tracks]);
   const highestBpmTrack = useMemo(() => getHighestBpmTrack(tracks), [tracks]);
@@ -38,7 +38,7 @@ export const PlaylistStatistics: React.FC<Props> = ({ playlist, tracks }) => {
     <SimpleGrid spacing={4} columns={[2, 4]}>
       <Card size="sm">
         <CardHeader>
-          <Heading size="xs">{t('playlists:statistics.highestBpm')}</Heading>
+          <Heading size="xs">{t('playlists:details.statistics.highestBpm')}</Heading>
         </CardHeader>
         <CardBody>
           <VStack align="flex-start" spacing="0">
@@ -55,7 +55,7 @@ export const PlaylistStatistics: React.FC<Props> = ({ playlist, tracks }) => {
 
       <Card size="sm">
         <CardHeader>
-          <Heading size="xs">{t('playlists:statistics.lowestBpm')}</Heading>
+          <Heading size="xs">{t('playlists:details.statistics.lowestBpm')}</Heading>
         </CardHeader>
         <CardBody>
           <VStack align="flex-start" spacing="0">
@@ -71,7 +71,7 @@ export const PlaylistStatistics: React.FC<Props> = ({ playlist, tracks }) => {
 
       <Card size="sm">
         <CardHeader>
-          <Heading size="xs">{t('playlists:statistics.averageBpm')}</Heading>
+          <Heading size="xs">{t('playlists:details.statistics.averageBpm')}</Heading>
         </CardHeader>
         <CardBody>
           <Text fontSize="sm">{averageBpm}</Text>
@@ -80,7 +80,7 @@ export const PlaylistStatistics: React.FC<Props> = ({ playlist, tracks }) => {
 
       <Card size="sm">
         <CardHeader>
-          <Heading size="xs">{t('playlists:statistics.duplicatedTracks')}</Heading>
+          <Heading size="xs">{t('playlists:details.statistics.duplicatedTracks')}</Heading>
         </CardHeader>
         <CardBody>
           {fetchingDuplicatedTracks ? (

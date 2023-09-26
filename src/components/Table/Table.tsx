@@ -40,7 +40,6 @@ export const Table = <TData extends object>({
   const table = useReactTable({
     columns,
     data,
-    enableSortingRemoval: false,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,

@@ -2,7 +2,9 @@ import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import React from 'react';
 
-import { Layout, Loader } from '@src/components';
+import { Skeleton } from '@chakra-ui/react';
+
+import { Layout } from '@src/components';
 import { usePlaylist } from '@src/hooks';
 import { spotifyApi } from '@src/lib';
 import { PlaylistDetails } from '@src/modules/PlaylistDetails';
@@ -16,9 +18,12 @@ export const getServerSideProps = SSRWrapperWithSession<{}, { playlistId: string
       };
     }
 
-    await queryClient.prefetchQuery(['playlist', params.playlistId], () =>
-      spotifyApi.fetchPlaylist(params.playlistId, {
-        Authorization: `Bearer ${session.accessToken}`,
+    await queryClient.prefetchQuery(['playlists', 'detail', params.playlistId], () =>
+      spotifyApi.apiRequest<SpotifyApi.SinglePlaylistResponse>({
+        url: `/playlists/${params.playlistId}`,
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+        },
       }),
     );
 
@@ -30,10 +35,10 @@ export const getServerSideProps = SSRWrapperWithSession<{}, { playlistId: string
 
 const PlaylistPage: NextPage = () => {
   const router = useRouter();
-  const { data: playlist, status: playlistStatus } = usePlaylist(router.query.playlistId as string);
+  const { data: playlist } = usePlaylist(router.query.playlistId as string);
 
-  if (playlistStatus !== 'success') {
-    return <Loader fullScreen />;
+  if (!playlist) {
+    return <Skeleton />;
   }
 
   return (

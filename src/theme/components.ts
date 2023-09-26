@@ -1,7 +1,20 @@
 import { theme as chakraTheme, ThemeComponents } from '@chakra-ui/theme';
 
-const { Alert, Avatar, Badge, Button, Card, Container, Heading, Link, Menu, Spinner, Table } =
-  chakraTheme.components;
+const {
+  Alert,
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Container,
+  Divider,
+  Heading,
+  Link,
+  Menu,
+  Skeleton,
+  Spinner,
+  Table,
+} = chakraTheme.components;
 
 export const components: ThemeComponents = {
   Alert,
@@ -10,16 +23,11 @@ export const components: ThemeComponents = {
   Button,
   Card,
   Container,
+  Divider,
   Heading,
-  Link: {
-    ...Link,
-    baseStyle: {
-      ...Link.baseStyle,
-      display: 'flex',
-      alignItems: 'center',
-    },
-  },
+  Link,
   Menu,
+  Skeleton,
   Spinner,
   Table,
 };

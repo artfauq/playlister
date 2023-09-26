@@ -5,22 +5,22 @@ import { Badge } from '@chakra-ui/react';
 import { useAppTranslation } from '@src/hooks';
 
 type Props = {
-  count: number;
+  public: boolean;
 };
 
-export const PlaylistTrackCount: React.FC<Props> = ({ count }) => {
+export const PlaylistPublicBadge: React.FC<Props> = ({ public: isPublic }) => {
   const { t } = useAppTranslation();
 
   return (
     <Badge
       borderRadius="full"
-      colorScheme="orange"
+      colorScheme="blue"
       fontSize="2xs"
       fontWeight="semibold"
       lineHeight="base"
       px="2"
     >
-      {t('playlists:details.trackCount', { count })}
+      {t(`playlists:details.${isPublic ? 'public' : 'private'}`)}
     </Badge>
   );
 };

@@ -1,7 +1,8 @@
 import { useQueries, UseQueryOptions } from '@tanstack/react-query';
 
+import { usePlaylist } from '@src/hooks/usePlaylist';
 import { spotifyApi } from '@src/lib';
-import { Playlist, Track } from '@src/types';
+import { Track } from '@src/types';
 import { trackDto } from '@src/utils';
 
 const MAX_LIMIT = 100;
@@ -16,30 +17,35 @@ type UsePlaylistTracksResult =
       isLoading: false;
     };
 
-export const usePlaylistTracks = (playlist: Playlist): UsePlaylistTracksResult => {
-  const { id: playlistId, trackCount } = playlist;
+export const usePlaylistTracks = (playlistId: string): UsePlaylistTracksResult => {
+  const { data: playlist } = usePlaylist(playlistId);
 
   const limit = MAX_LIMIT;
 
   const queries = useQueries({
-    queries: Array.from({ length: Math.ceil(trackCount / limit) }, (_, i) => {
-      const offset = i * limit;
+    queries: playlist
+      ? Array.from({ length: Math.ceil(playlist.trackCount / limit) }, (_, i) => {
+          const offset = i * limit;
 
-      const queryOptions: UseQueryOptions<SpotifyApi.PlaylistTrackResponse, unknown, Track[]> = {
-        queryKey: ['playlistTracks', playlistId, limit, offset],
-        queryFn: () => spotifyApi.fetchPlaylistTracks(playlistId, { limit, offset }),
-        select: data =>
-          data.items.reduce<Track[]>(
-            (acc, track) => (track.track ? [...acc, trackDto(track.track, track.added_at)] : acc),
-            [],
-          ),
-      };
+          const queryOptions: UseQueryOptions<SpotifyApi.PlaylistTrackResponse, unknown, Track[]> =
+            {
+              queryKey: ['playlistTracks', playlistId, { limit, offset }],
+              queryFn: () => spotifyApi.fetchPlaylistTracks(playlistId, { limit, offset }),
+              select: data =>
+                data.items.reduce<Track[]>(
+                  (acc, track) =>
+                    track.track ? [...acc, trackDto(track.track, track.added_at)] : acc,
+                  [],
+                ),
+              staleTime: playlist.stale ? Infinity : 30 * 1000,
+            };
 
-      return queryOptions;
-    }),
+          return queryOptions;
+        })
+      : [],
   });
 
-  const isLoading = queries.some(query => query.isLoading);
+  const isLoading = queries.some(query => query.status === 'loading');
 
   if (isLoading) {
     return {
@@ -48,9 +54,10 @@ export const usePlaylistTracks = (playlist: Playlist): UsePlaylistTracksResult =
     };
   }
 
-  const data = queries
-    .reduce<Track[]>((acc, query) => (query.data ? [...acc, ...query.data] : acc), [])
-    .sort((a, b) => a.name.localeCompare(b.name));
+  const data = queries.reduce<Track[]>(
+    (acc, query) => (query.data ? [...acc, ...query.data] : acc),
+    [],
+  );
 
   return {
     data,

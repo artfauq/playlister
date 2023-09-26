@@ -4,8 +4,8 @@ import axios, { AxiosRequestConfig, isAxiosError, RawAxiosRequestHeaders } from 
 import { getSession } from 'next-auth/react';
 
 import { spotifyConfig } from '@src/config';
-import { CreatePlaylistInput, Playlist, TokenResponse, Track, UserProfile } from '@src/types';
-import { playlistDto, splitArrayIntoChunks, userProfileDto } from '@src/utils';
+import { CreatePlaylistInput, TokenResponse, Track } from '@src/types';
+import { splitArrayIntoChunks } from '@src/utils';
 
 export const spotifyClient = axios.create({
   baseURL: 'https://api.spotify.com/v1',
@@ -121,24 +121,20 @@ export const refreshAccessToken = async (refreshToken: string) => {
 /**
  * Get profile information about the current user.
  */
-export const fetchUserProfile = async (): Promise<UserProfile> => {
-  const user = await apiRequest<SpotifyApi.UserProfileResponse>({ url: '/me' });
-
-  return userProfileDto(user);
+export const fetchUserProfile = async () => {
+  return apiRequest<SpotifyApi.UserProfileResponse>({ url: '/me' });
 };
 
 /**
  * Get the current user's playlists.
  */
-export const fetchUserPlaylists = async (): Promise<Playlist[]> => {
-  const playlists = await fetchPaginatedData<SpotifyApi.PlaylistObjectSimplified>({
+export const fetchUserPlaylists = async () => {
+  return fetchPaginatedData<SpotifyApi.PlaylistObjectSimplified>({
     url: '/me/playlists',
     params: {
       limit: 50,
     },
   });
-
-  return playlists.map(playlistDto).sort((a, b) => a.name.localeCompare(b.name));
 };
 
 /**
@@ -213,27 +209,19 @@ export async function fetchPlaylistTracks(
 /**
  * Get playlist details.
  */
-export const fetchPlaylist = async (
-  playlistId: string,
-  headers?: RawAxiosRequestHeaders,
-): Promise<Playlist> => {
-  return apiRequest<SpotifyApi.SinglePlaylistResponse>({
-    url: `/playlists/${playlistId}`,
-    headers,
-  }).then(playlistDto);
+export const fetchPlaylist = async (playlistId: string) => {
+  return apiRequest<SpotifyApi.SinglePlaylistResponse>({ url: `/playlists/${playlistId}` });
 };
 
 /**
  * Create a playlist.
  */
-export const createPlaylist = async (values: CreatePlaylistInput): Promise<Playlist> => {
-  const { id: userId } = await fetchUserProfile();
-
+export const createPlaylist = async (userId: string, values: CreatePlaylistInput) => {
   return apiRequest<SpotifyApi.CreatePlaylistResponse>({
     method: 'POST',
     url: `/users/${userId}/playlists`,
     data: JSON.stringify(values),
-  }).then(playlistDto);
+  });
 };
 
 /**

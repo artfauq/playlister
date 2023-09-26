@@ -30,10 +30,12 @@ const App: React.FC<AppProps> = ({ Component, pageProps: { session, ...pageProps
 
           html,
           body,
-          body > div:first-child,
-          div#__next,
-          div#__next > div {
+          div#__next {
             height: 100%;
+          }
+
+          div#__next {
+            position: relative;
           }
         `}
       </style>

@@ -25,8 +25,6 @@ export const SaveUnclassifiedButton: React.FC<Props> = () => {
   });
 
   useEffect(() => {
-    console.log('data', data);
-
     if (data && !toast.isActive('save-unclassified')) {
       toast({
         id: 'save-unclassified',

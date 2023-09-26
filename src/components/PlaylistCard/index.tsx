@@ -2,18 +2,20 @@ import React from 'react';
 
 import { Card, CardProps } from '@chakra-ui/react';
 
-import { PlaylistHeader } from '@src/components/PlaylistHeader';
-import { Playlist } from '@src/types';
+import { PlaylistHeader, PlaylistHeaderProps } from '@src/components/PlaylistHeader';
 
-type Props = CardProps & {
-  playlist: Pick<Playlist, 'coverImage' | 'name' | 'trackCount'>;
+type Props = PlaylistHeaderProps & {
   isSelected?: boolean;
-};
+} & CardProps;
 
 export const PlaylistCard: React.FC<Props> = ({ playlist, isSelected, ...rest }) => {
   return (
     <Card overflow="hidden" variant="elevated" {...rest}>
-      <PlaylistHeader playlist={playlist} bg={isSelected ? 'green.200' : 'transparent'} />
+      <PlaylistHeader
+        playlist={playlist}
+        bg={isSelected ? 'green.200' : 'transparent'}
+        coverSize="sm"
+      />
     </Card>
   );
 };
