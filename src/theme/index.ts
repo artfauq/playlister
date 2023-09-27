@@ -1,4 +1,4 @@
-import { extendBaseTheme, ThemeConfig } from '@chakra-ui/react';
+import { extendBaseTheme, Theme, ThemeConfig } from '@chakra-ui/react';
 import { ChakraTheme } from '@chakra-ui/theme';
 
 import { colors } from './colors';
@@ -17,4 +17,4 @@ const theme: Partial<ChakraTheme> = {
   ...typography,
 };
 
-export default extendBaseTheme(theme);
+export default extendBaseTheme(theme) as Theme;

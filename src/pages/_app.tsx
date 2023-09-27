@@ -1,23 +1,57 @@
 import type { AppProps, NextWebVitalsMetric } from 'next/app';
-import React, { useState } from 'react';
+import React, { useRef } from 'react';
 
 import { ChakraBaseProvider } from '@chakra-ui/react';
-import { Hydrate, QueryClientProvider } from '@tanstack/react-query';
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+import {
+  Hydrate,
+  QueryClient,
+  QueryClientProvider,
+  QueryClientProviderProps,
+} from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import {
+  PersistQueryClientProvider,
+  PersistQueryClientProviderProps,
+} from '@tanstack/react-query-persist-client';
 import { SessionProvider } from 'next-auth/react';
 import { DefaultSeo } from 'next-seo';
 import { Inter } from 'next/font/google';
 
 import { GlobalLoadingIndicator } from '@src/components';
 import { defaultSEOConfig } from '@src/config';
-import { queryClient } from '@src/lib';
 import theme from '@src/theme';
 import { handleMetric } from '@src/utils';
 
 const inter = Inter({ subsets: ['latin'] });
 
 const App: React.FC<AppProps> = ({ Component, pageProps: { session, ...pageProps } }) => {
-  const [client] = useState(() => queryClient);
+  const queryClient = useRef(
+    new QueryClient({
+      defaultOptions: {
+        queries: {
+          cacheTime: 1000 * 60 * 60 * 24, // 24 hours,
+          refetchOnMount: true,
+          refetchOnReconnect: true,
+          refetchOnWindowFocus: true,
+        },
+      },
+    }),
+  );
+
+  const QueryClientProviderWithPersist =
+    typeof window !== 'undefined' ? PersistQueryClientProvider : QueryClientProvider;
+  const queryClientProviderProps =
+    typeof window !== 'undefined'
+      ? ({
+          client: queryClient.current,
+          persistOptions: {
+            persister: createSyncStoragePersister({ storage: window.localStorage }),
+          },
+        } as PersistQueryClientProviderProps)
+      : ({
+          client: queryClient.current,
+        } as QueryClientProviderProps);
 
   return (
     <>
@@ -40,7 +74,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps: { session, ...pageProps
         `}
       </style>
       <SessionProvider session={session}>
-        <QueryClientProvider client={client}>
+        <QueryClientProviderWithPersist {...(queryClientProviderProps as any)}>
           <Hydrate state={pageProps.dehydratedState}>
             <ChakraBaseProvider theme={theme} resetCSS>
               <DefaultSeo {...defaultSEOConfig} />
@@ -49,7 +83,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps: { session, ...pageProps
               <ReactQueryDevtools />
             </ChakraBaseProvider>
           </Hydrate>
-        </QueryClientProvider>
+        </QueryClientProviderWithPersist>
       </SessionProvider>
     </>
   );

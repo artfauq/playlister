@@ -7,31 +7,10 @@ import { FaSpotify } from 'react-icons/fa';
 
 import { Layout } from '@src/components';
 import { useAppTranslation, useCurrentUser } from '@src/hooks';
-import { spotifyApi } from '@src/lib';
 import { PlaylistList } from '@src/modules/PlaylistsPage';
 import { SSRWrapperWithSession } from '@src/utils';
 
-export const getServerSideProps = SSRWrapperWithSession(async ({ queryClient, session }) => {
-  if (!session) {
-    return { props: {} };
-  }
-
-  await queryClient.prefetchQuery(['playlists'], () =>
-    spotifyApi.fetchPaginatedData<SpotifyApi.PlaylistObjectSimplified>({
-      url: '/me/playlists',
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-      params: {
-        limit: 50,
-      },
-    }),
-  );
-
-  return {
-    props: {},
-  };
-}, false);
+export const getServerSideProps = SSRWrapperWithSession(undefined, false);
 
 const onSignIn = () => {
   signIn('spotify');

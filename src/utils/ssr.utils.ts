@@ -47,11 +47,13 @@ export function SSRWrapperWithSession<
   Props extends Record<string, any> = Record<string, any>,
   Params extends ParsedUrlQuery = ParsedUrlQuery,
 >(
-  getServerSideProps: (
-    ctx: WrappedGetServerSidePropsContext<Params> & {
-      session: Session;
-    },
-  ) => Promise<GetServerSidePropsResult<Props>>,
+  getServerSideProps:
+    | ((
+        ctx: WrappedGetServerSidePropsContext<Params> & {
+          session: Session;
+        },
+      ) => Promise<GetServerSidePropsResult<Props>>)
+    | undefined,
   withRedirect?: true,
 ): ReturnType<typeof SSRWrapper<Props, Params>>;
 
@@ -59,9 +61,9 @@ export function SSRWrapperWithSession<
   Props extends Record<string, any> = Record<string, any>,
   Params extends ParsedUrlQuery = ParsedUrlQuery,
 >(
-  getServerSideProps: (
-    ctx: WrappedGetServerSidePropsContext<Params>,
-  ) => Promise<GetServerSidePropsResult<Props>>,
+  getServerSideProps:
+    | ((ctx: WrappedGetServerSidePropsContext<Params>) => Promise<GetServerSidePropsResult<Props>>)
+    | undefined,
   withRedirect: false,
 ): ReturnType<typeof SSRWrapper<Props, Params>>;
 
@@ -69,7 +71,7 @@ export function SSRWrapperWithSession<
   Props extends Record<string, any> = Record<string, any>,
   Params extends ParsedUrlQuery = ParsedUrlQuery,
 >(
-  getServerSideProps: (ctx: any) => Promise<GetServerSidePropsResult<Props>>,
+  getServerSideProps: ((ctx: any) => Promise<GetServerSidePropsResult<Props>>) | undefined,
   withRedirect = true,
 ): ReturnType<typeof SSRWrapper<Props, Params>> {
   return SSRWrapper<Props, Params>(async context => {
@@ -84,7 +86,7 @@ export function SSRWrapperWithSession<
       };
     }
 
-    const result = await getServerSideProps({ ...context, session });
+    const result = await getServerSideProps?.({ ...context, session });
 
     const props: GetServerSidePropsResult<{ session: Session | null }> = {
       props: {

@@ -30,6 +30,6 @@ export const usePlaylist = (playlistId: string) => {
 
       return playlist ? playlistDto(playlist, cachedPlaylist?.snapshot_id) : undefined;
     },
-    staleTime: 30 * 1000,
+    staleTime: 60 * 1000,
   });
 };

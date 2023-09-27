@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 
 import { HStack, Image, StackProps, Text, TypographyProps } from '@chakra-ui/react';
 
-import { appConfig } from '@src/config';
+import { config } from '@src/config';
 
 type Props = StackProps & {
   size?: 'sm' | 'md' | 'lg';
@@ -48,7 +48,7 @@ export const Logo: React.FC<Props> = ({ size = 'md', ...rest }) => {
         h={imageSize}
       />
       <Text fontSize={fontSize} fontWeight="semibold" lineHeight={lineHeight}>
-        {appConfig.appName}
+        {config.appName}
       </Text>
     </HStack>
   );

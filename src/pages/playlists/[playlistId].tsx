@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 
 import { Skeleton } from '@chakra-ui/react';
+import { NextSeo } from 'next-seo';
 
 import { Layout } from '@src/components';
 import { usePlaylist } from '@src/hooks';
@@ -42,9 +43,12 @@ const PlaylistPage: NextPage = () => {
   }
 
   return (
-    <Layout>
-      <PlaylistDetails playlist={playlist} />
-    </Layout>
+    <>
+      <NextSeo title={playlist.name} />
+      <Layout>
+        <PlaylistDetails playlist={playlist} />
+      </Layout>
+    </>
   );
 };
 

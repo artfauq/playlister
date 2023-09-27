@@ -43,11 +43,9 @@ export const usePlaylistTracks = (playlistId: string): UsePlaylistTracksResult =
 
                   const isSaved = savedTracks.some(savedTrack => savedTrack.id === track.track?.id);
 
-                  // console.log('isSaved', isSaved);
-
                   return [...acc, trackDto(track.track, track.added_at, isSaved)];
                 }, []),
-              staleTime: playlist.stale ? Infinity : 30 * 1000,
+              staleTime: playlist.stale ? Infinity : 60 * 1000,
             };
 
             return queryOptions;

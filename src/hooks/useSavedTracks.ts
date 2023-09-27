@@ -38,7 +38,7 @@ export const useSavedTracks = (): UseSavedTracksResult => {
                   (acc, track) => [...acc, trackDto(track.track, track.added_at, true)],
                   [],
                 ),
-              staleTime: 30 * 1000,
+              staleTime: 60 * 1000,
             };
 
             return queryOptions;

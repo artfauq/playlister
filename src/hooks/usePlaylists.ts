@@ -9,6 +9,9 @@ type SortBy = 'name';
 
 export const usePlaylists = (sortBy: SortBy = 'name') => {
   const queryClient = useQueryClient();
+  const previousPlaylists = queryClient.getQueryData<SpotifyApi.PlaylistObjectSimplified[]>([
+    'playlists',
+  ]);
 
   return useQuery({
     queryKey: ['playlists'],
@@ -17,11 +20,9 @@ export const usePlaylists = (sortBy: SortBy = 'name') => {
       (playlists: SpotifyApi.PlaylistObjectSimplified[]) =>
         playlists
           .map(playlist => {
-            const cachedPlaylist = queryClient
-              .getQueryData<SpotifyApi.PlaylistObjectSimplified[]>(['playlists'])
-              ?.find(p => p.id === playlist.id);
+            const previousPlaylist = previousPlaylists?.find(p => p.id === playlist.id);
 
-            return playlistDto(playlist, cachedPlaylist?.snapshot_id);
+            return playlistDto(playlist, previousPlaylist?.snapshot_id);
           })
           .sort((a, b) => {
             switch (sortBy) {
@@ -32,8 +33,8 @@ export const usePlaylists = (sortBy: SortBy = 'name') => {
                 throw new Error(`Invalid sort by: ${sortBy as string}`);
             }
           }),
-      [queryClient, sortBy],
+      [previousPlaylists, sortBy],
     ),
-    staleTime: 30 * 1000,
+    staleTime: 60 * 1000,
   });
 };
