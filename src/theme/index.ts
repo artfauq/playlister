@@ -7,7 +7,7 @@ import { typography } from './typography';
 
 const config: ThemeConfig = {
   initialColorMode: 'light',
-  useSystemColorMode: false,
+  useSystemColorMode: true,
 };
 
 const theme: Partial<ChakraTheme> = {

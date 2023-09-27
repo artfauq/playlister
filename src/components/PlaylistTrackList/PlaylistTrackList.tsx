@@ -1,20 +1,22 @@
 import React from 'react';
 
-import { Card, Icon, Image, Text } from '@chakra-ui/react';
+import { Badge, HStack, Icon, Image, Text } from '@chakra-ui/react';
 import { ColumnDef, createColumnHelper } from '@tanstack/table-core';
 import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
 import { RxClock } from 'react-icons/rx';
 
+import { Loader } from '@src/components/Loader';
 import { Table } from '@src/components/Table';
 import { useAppTranslation } from '@src/hooks';
-import { TrackWithAudioFeatures } from '@src/types';
+import { DuplicateTrack, TrackWithAudioFeatures } from '@src/types';
 import { parseTrackDuration } from '@src/utils';
 
 type Props = {
-  tracks: TrackWithAudioFeatures[];
+  tracks?: TrackWithAudioFeatures[];
+  duplicatedTracks?: DuplicateTrack[];
 };
 
-export const PlaylistTrackList: React.FC<Props> = ({ tracks }) => {
+export const PlaylistTrackList: React.FC<Props> = ({ tracks, duplicatedTracks }) => {
   const { t } = useAppTranslation();
 
   const columnHelper = createColumnHelper<TrackWithAudioFeatures>();
@@ -23,24 +25,21 @@ export const PlaylistTrackList: React.FC<Props> = ({ tracks }) => {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const columns: Array<ColumnDef<TrackWithAudioFeatures, any>> = [
-    columnHelper.accessor<'album', SpotifyApi.AlbumObjectSimplified>('album', {
-      id: 'cover',
-      header: '',
-      cell: ({ getValue }) => {
-        const album = getValue();
-
-        return (
-          album.images.length && (
-            <Image src={album.images[0].url} alt={album.name} boxSize={12} objectFit="cover" />
-          )
-        );
-      },
-      enableSorting: false,
-    }),
     columnHelper.accessor<'name', string>('name', {
       id: 'name',
       header: t('tracks:table.header.name'),
-      cell: ({ getValue }) => <Text isTruncated>{getValue()}</Text>,
+      cell: ({ getValue, row }) => {
+        const { album } = row.original;
+
+        return (
+          <HStack>
+            {album.images.length && (
+              <Image src={album.images[0].url} alt={album.name} boxSize={12} objectFit="cover" />
+            )}
+            <Text isTruncated>{getValue()}</Text>
+          </HStack>
+        );
+      },
       enableSorting: true,
       maxSize: 300,
     }),
@@ -89,18 +88,42 @@ export const PlaylistTrackList: React.FC<Props> = ({ tracks }) => {
       maxSize: 100,
     }),
     columnHelper.display({
-      id: 'actions',
+      id: 'saved',
       cell: ({ row }) => {
         const { isSaved } = row.original;
 
         return <Icon as={isSaved ? MdFavorite : MdFavoriteBorder} boxSize={4} color="red" />;
       },
     }),
+    columnHelper.display({
+      id: 'duplicate',
+      cell: ({ row }) => {
+        const { id } = row.original;
+        const suspectedDuplicate = duplicatedTracks?.find(track => track.id === id);
+
+        console.log('suspectedDuplicate', suspectedDuplicate);
+
+        return (
+          suspectedDuplicate && (
+            <Badge
+              borderRadius="full"
+              colorScheme="orange"
+              fontSize="2xs"
+              fontWeight="semibold"
+              lineHeight="base"
+              px="2"
+            >
+              {suspectedDuplicate.duplicateReason}
+            </Badge>
+          )
+        );
+      },
+    }),
   ];
 
-  return (
-    <Card>
-      <Table columns={columns} data={tracks} defaultSort={[{ id: 'name', desc: false }]} />
-    </Card>
-  );
+  if (tracks) {
+    return <Table columns={columns} data={tracks} defaultSort={[{ id: 'name', desc: false }]} />;
+  }
+
+  return <Loader fullScreen loadingText={t('tracks:fetching')} />;
 };

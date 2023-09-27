@@ -23,7 +23,7 @@ export const PlaylistList: React.FC<Props> = () => {
               playlist={{
                 name: t('playlists:savedTracks'),
                 coverImage: '/images/liked-song.png',
-                owner: currentUser,
+                owner: currentUser?.name,
                 public: null,
                 trackCount: savedTracksCount,
               }}

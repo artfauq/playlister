@@ -274,7 +274,7 @@ export const fetchTracksAudioFeatures = async (
   trackIds: string[],
   headers?: RawAxiosRequestHeaders,
 ) => {
-  const audioFeatures = await Promise.all(
+  return Promise.all(
     splitArrayIntoChunks(trackIds, 100).map(trackIdsChunk => {
       return apiRequest<SpotifyApi.MultipleAudioFeaturesResponse>({
         url: '/audio-features',
@@ -284,10 +284,23 @@ export const fetchTracksAudioFeatures = async (
         },
       });
     }),
+  ).then(res =>
+    res.reduce<SpotifyApi.AudioFeaturesObject[]>(
+      (acc, { audio_features }) => [...acc, ...audio_features],
+      [],
+    ),
   );
+};
 
-  return audioFeatures.reduce<SpotifyApi.AudioFeaturesObject[]>(
-    (acc, { audio_features }) => [...acc, ...audio_features],
-    [],
-  );
+export const checkUserSavedTracks = async (trackIds: string[]) => {
+  return Promise.all(
+    splitArrayIntoChunks(trackIds, 50).map(trackIdsChunk => {
+      return apiRequest<boolean[]>({
+        url: '/me/tracks/contains',
+        params: {
+          ids: trackIdsChunk.join(','),
+        },
+      });
+    }),
+  ).then(res => res.reduce((acc, curr) => [...acc, ...curr], []));
 };

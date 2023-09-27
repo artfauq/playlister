@@ -1,6 +1,5 @@
 export type Track = {
   id: string;
-  addedAt: string;
   album: SpotifyApi.AlbumObjectSimplified;
   artists: SpotifyApi.ArtistObjectSimplified[];
   durationMs: number;

@@ -28,7 +28,9 @@ type Props = {
 
 export const PlaylistStatistics: React.FC<Props> = ({ playlist, tracks }) => {
   const { t } = useAppTranslation();
-  const { duplicatedTracks, fetching: fetchingDuplicatedTracks } = useDuplicatedTracks(playlist.id);
+  const { data: duplicatedTracks, fetching: fetchingDuplicatedTracks } = useDuplicatedTracks(
+    playlist.id,
+  );
 
   const averageBpm = useMemo(() => getTracksAverageBpm(tracks), [tracks]);
   const highestBpmTrack = useMemo(() => getHighestBpmTrack(tracks), [tracks]);

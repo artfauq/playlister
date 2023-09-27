@@ -1,17 +1,21 @@
 import React from 'react';
 
-import { Heading, HStack, Icon, StackProps, Text, VStack } from '@chakra-ui/react';
+import { Heading, HStack, Icon, Skeleton, StackProps, Text, VStack } from '@chakra-ui/react';
 import { FaUser, FaUsers } from 'react-icons/fa';
 
 import { PlaylistCover, PlaylistCoverProps } from '@src/components/PlaylistCover';
 import { PlaylistPublicBadge } from '@src/components/PlaylistPublicBadge';
 import { PlaylistTrackCount } from '@src/components/PlaylistTrackCount';
 import { useAppTranslation } from '@src/hooks';
-import { Playlist } from '@src/types';
 
 export type PlaylistHeaderProps = {
-  playlist: Pick<Playlist, 'name' | 'coverImage' | 'followers' | 'public' | 'trackCount'> & {
-    owner?: Pick<Playlist['owner'], 'name'>;
+  playlist: {
+    name: string;
+    coverImage?: string | null;
+    followers?: number | null;
+    owner?: string | null;
+    public?: boolean | null;
+    trackCount?: number;
   };
   coverSize?: PlaylistCoverProps['size'];
 };
@@ -30,13 +34,17 @@ export const PlaylistHeader: React.FC<Props> = ({ playlist, coverSize, ...rest }
         </Heading>
         <HStack spacing="1">
           {playlist.public != null && <PlaylistPublicBadge public={playlist.public} />}
-          <PlaylistTrackCount count={playlist.trackCount} />
+          {playlist.trackCount ? (
+            <PlaylistTrackCount count={playlist.trackCount} />
+          ) : (
+            <Skeleton height="15px" />
+          )}
         </HStack>
-        {playlist.owner?.name && (
+        {playlist.owner && (
           <HStack spacing="0" mt="1">
             <Icon as={FaUser} boxSize={3} color="gray.400" />
             <Text color="gray.500" fontSize="sm" lineHeight="none" px="1">
-              {playlist.owner.name}
+              {playlist.owner}
             </Text>
           </HStack>
         )}

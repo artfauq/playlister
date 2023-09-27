@@ -1,5 +1,4 @@
 import { Playlist } from '@src/types';
-import { userProfileDto } from '@src/utils/user.utils';
 
 export const playlistDto = (
   playlist: SpotifyApi.PlaylistObjectSimplified | SpotifyApi.PlaylistObjectFull,
@@ -9,12 +8,12 @@ export const playlistDto = (
     id: playlist.id,
     name: playlist.name,
     description: playlist.description,
-    coverImage: playlist.images.length ? playlist.images[0].url : undefined,
+    coverImage: playlist.images.length ? playlist.images[0].url : null,
     collaborative: playlist.collaborative,
-    followers: 'followers' in playlist ? playlist.followers.total : undefined,
+    followers: 'followers' in playlist ? playlist.followers.total : null,
     stale: playlist.snapshot_id === previousSnapshotId,
     public: playlist.public,
-    owner: userProfileDto(playlist.owner),
+    owner: playlist.owner.display_name ?? null,
     snapshotId: playlist.snapshot_id,
     trackCount: playlist.tracks.total,
   };

@@ -1,14 +1,12 @@
-import { UserProfile } from './user.types';
-
 export type Playlist = {
   id: string;
   name: string;
   description: string | null;
-  coverImage?: string;
+  coverImage: string | null;
   collaborative: boolean;
-  followers?: number;
+  followers: number | null;
   public: boolean | null;
-  owner: UserProfile;
+  owner: string | null;
   snapshotId: string;
   stale: boolean;
   trackCount: number;

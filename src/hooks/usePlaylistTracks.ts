@@ -1,7 +1,6 @@
 import { useQueries, UseQueryOptions } from '@tanstack/react-query';
 
 import { usePlaylist } from '@src/hooks/usePlaylist';
-import { useSavedTracks } from '@src/hooks/useSavedTracks';
 import { spotifyApi } from '@src/lib';
 import { Track } from '@src/types';
 import { trackDto } from '@src/utils';
@@ -20,40 +19,39 @@ type UsePlaylistTracksResult =
 
 export const usePlaylistTracks = (playlistId: string): UsePlaylistTracksResult => {
   const { data: playlist } = usePlaylist(playlistId);
-  const { data: savedTracks, isLoading: fetchingSavedTracks } = useSavedTracks();
-
-  const limit = MAX_LIMIT;
 
   const queries = useQueries({
-    queries:
-      playlist && savedTracks
-        ? Array.from({ length: Math.ceil(playlist.trackCount / limit) }, (_, i) => {
-            const offset = i * limit;
+    queries: playlist
+      ? Array.from({ length: Math.ceil(playlist.trackCount / MAX_LIMIT) }, (_, i) => {
+          const offset = i * MAX_LIMIT;
 
-            const queryOptions: UseQueryOptions<
-              SpotifyApi.PlaylistTrackResponse,
-              unknown,
-              Track[]
-            > = {
-              queryKey: ['playlistTracks', playlistId, { limit, offset }],
-              queryFn: () => spotifyApi.fetchPlaylistTracks(playlistId, { limit, offset }),
-              select: data =>
-                data.items.reduce<Track[]>((acc, track) => {
-                  if (!track.track) return acc;
+          const queryOptions: UseQueryOptions<Track[]> = {
+            queryKey: ['playlistTracks', playlistId, { offset }],
+            queryFn: async () => {
+              const playlistTracks = await spotifyApi
+                .fetchPlaylistTracks(playlistId, { limit: MAX_LIMIT, offset })
+                .then(tracks =>
+                  tracks.items.filter(item => !!item.track).map(track => track.track!),
+                );
 
-                  const isSaved = savedTracks.some(savedTrack => savedTrack.id === track.track?.id);
+              const trackIds = playlistTracks.map(track => track.id);
+              const savedTracksIndices = await spotifyApi.checkUserSavedTracks(trackIds);
 
-                  return [...acc, trackDto(track.track, track.added_at, isSaved)];
-                }, []),
-              staleTime: playlist.stale ? Infinity : 60 * 1000,
-            };
+              return playlistTracks.reduce<Track[]>((acc, track, index) => {
+                const isSaved = savedTracksIndices[index];
 
-            return queryOptions;
-          })
-        : [],
+                return [...acc, trackDto(track, isSaved)];
+              }, []);
+            },
+            staleTime: playlist.stale ? Infinity : 60 * 1000,
+          };
+
+          return queryOptions;
+        })
+      : [],
   });
 
-  const isLoading = queries.some(query => query.status === 'loading') || fetchingSavedTracks;
+  const isLoading = queries.some(query => query.status === 'loading');
 
   if (isLoading) {
     return {

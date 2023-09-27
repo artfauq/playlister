@@ -4,7 +4,7 @@ import { Center, Icon, Image } from '@chakra-ui/react';
 import { FaItunesNote } from 'react-icons/fa';
 
 export type PlaylistCoverProps = {
-  coverImage?: string;
+  coverImage?: string | null;
   name: string;
   size?: 'sm' | 'md';
 };

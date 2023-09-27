@@ -8,11 +8,13 @@ const {
   Card,
   Container,
   Divider,
+  FormLabel,
   Heading,
   Link,
   Menu,
   Skeleton,
   Spinner,
+  Switch,
   Table,
 } = chakraTheme.components;
 
@@ -24,10 +26,12 @@ export const components: ThemeComponents = {
   Card,
   Container,
   Divider,
+  FormLabel,
   Heading,
   Link,
   Menu,
   Skeleton,
   Spinner,
+  Switch,
   Table,
 };

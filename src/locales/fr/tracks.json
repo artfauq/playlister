@@ -1,4 +1,5 @@
 {
+  "fetching": "Récupération des titres...",
   "table": {
     "header": {
       "album": "Album",

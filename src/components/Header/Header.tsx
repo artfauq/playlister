@@ -41,7 +41,8 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <Container as="header" maxW={['none', '6xl']} py="4">
+    <Container as="header" maxW={['none', '8xl']} py="4">
+      {/* <ColorModeSelector /> */}
       {currentUser ? (
         <HStack align="flex-start" justify="space-between">
           <BackButton />

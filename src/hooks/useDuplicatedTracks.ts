@@ -7,11 +7,11 @@ import { usePlaylistTracks } from './usePlaylistTracks';
 
 type UseDuplicatedTracksResult =
   | {
-      duplicatedTracks: DuplicateTrack[];
+      data: DuplicateTrack[];
       fetching: false;
     }
   | {
-      duplicatedTracks: undefined;
+      data: undefined;
       fetching: true;
     };
 
@@ -26,13 +26,13 @@ export const useDuplicatedTracks = (playlistId: string): UseDuplicatedTracksResu
 
   if (!duplicatedTracks) {
     return {
-      duplicatedTracks: undefined,
+      data: undefined,
       fetching: true,
     };
   }
 
   return {
-    duplicatedTracks,
+    data: duplicatedTracks,
     fetching: false,
   };
 };

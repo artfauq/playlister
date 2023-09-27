@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { Box, HStack, VStack } from '@chakra-ui/react';
+import { Box, Card, HStack, VStack } from '@chakra-ui/react';
 
 import { PlaylistHeader, PlaylistTrackList, SaveUnclassifiedButton } from '@src/components';
 import { UNCLASSIFIED_PLAYLIST_NAME } from '@src/constants';
-import { usePlaylistTracksWithAudioFeatures } from '@src/hooks';
+import { useDuplicatedTracks, usePlaylistTracksWithAudioFeatures } from '@src/hooks';
 import { Playlist } from '@src/types';
 
 type Props = {
@@ -12,20 +12,23 @@ type Props = {
 };
 
 export const PlaylistDetails: React.FC<Props> = ({ playlist }) => {
-  const { data: playlistTracks, isLoading: fetching } = usePlaylistTracksWithAudioFeatures(
-    playlist.id,
-  );
+  const { data: playlistTracks } = usePlaylistTracksWithAudioFeatures(playlist.id);
+  const { data: duplicatedTracks } = useDuplicatedTracks(playlist.id);
 
   return (
-    <VStack align="stretch" spacing="4">
+    <VStack align="stretch" flex={1} spacing="8">
       <HStack justify="space-between">
         <PlaylistHeader playlist={playlist} />
         {/* <PlaylistStatistics playlist={playlist} tracks={playlistTracks} /> */}
       </HStack>
-      <Box alignSelf="flex-start">
-        {playlist.name === UNCLASSIFIED_PLAYLIST_NAME && <SaveUnclassifiedButton />}
-      </Box>
-      {!fetching && <PlaylistTrackList tracks={playlistTracks} />}
+      {playlist.name === UNCLASSIFIED_PLAYLIST_NAME && (
+        <Box alignSelf="flex-start">
+          <SaveUnclassifiedButton />
+        </Box>
+      )}
+      <Card flex={1}>
+        <PlaylistTrackList tracks={playlistTracks} duplicatedTracks={duplicatedTracks} />
+      </Card>
     </VStack>
   );
 };

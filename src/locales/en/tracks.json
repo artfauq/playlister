@@ -1,4 +1,5 @@
 {
+  "fetching": "Fetching tracks...",
   "table": {
     "header": {
       "album": "Album",

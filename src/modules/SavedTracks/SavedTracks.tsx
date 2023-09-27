@@ -2,19 +2,16 @@ import React from 'react';
 
 import { HStack } from '@chakra-ui/react';
 
-import { Loader, PlaylistHeader, PlaylistTrackList } from '@src/components';
-import { useAppTranslation, useCurrentUser, useSavedTracks } from '@src/hooks';
+import { PlaylistHeader, PlaylistTrackList } from '@src/components';
+import { useAppTranslation, useCurrentUser, useSavedTracks, useSavedTracksCount } from '@src/hooks';
 
 type Props = {};
 
 export const SavedTracks: React.FC<Props> = () => {
   const { t } = useAppTranslation();
   const currentUser = useCurrentUser();
-  const { data: playlistTracks, isLoading } = useSavedTracks();
-
-  if (isLoading) {
-    return <Loader fullScreen />;
-  }
+  const { data: playlistTracks } = useSavedTracks();
+  const { data: savedTracksCount } = useSavedTracksCount();
 
   return (
     <>
@@ -23,9 +20,9 @@ export const SavedTracks: React.FC<Props> = () => {
           playlist={{
             name: t('playlists:savedTracks'),
             coverImage: '/images/liked-song.png',
-            owner: currentUser,
+            owner: currentUser?.name,
             public: false,
-            trackCount: playlistTracks.length,
+            trackCount: savedTracksCount,
           }}
         />
       </HStack>
