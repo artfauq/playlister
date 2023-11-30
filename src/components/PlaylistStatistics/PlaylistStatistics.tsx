@@ -12,9 +12,10 @@ import {
 } from '@chakra-ui/react';
 
 import { Loader } from '@src/components/Loader';
-import { useAppTranslation, useDuplicatedTracks } from '@src/hooks';
+import { useAppTranslation, usePlaylistTracks } from '@src/hooks';
 import { Playlist, TrackWithAudioFeatures } from '@src/types';
 import {
+  findDuplicateTracks,
   getHighestBpmTrack,
   getLowestBpmTrack,
   getTrackBpm,
@@ -28,9 +29,13 @@ type Props = {
 
 export const PlaylistStatistics: React.FC<Props> = ({ playlist, tracks }) => {
   const { t } = useAppTranslation();
-  const { data: duplicatedTracks, fetching: fetchingDuplicatedTracks } = useDuplicatedTracks(
-    playlist.id,
-  );
+  const { data: playlistTracks, isLoading } = usePlaylistTracks(playlist.id);
+
+  const duplicatedTracks = useMemo(() => {
+    if (!playlistTracks) return undefined;
+
+    return findDuplicateTracks(playlistTracks);
+  }, [playlistTracks]);
 
   const averageBpm = useMemo(() => getTracksAverageBpm(tracks), [tracks]);
   const highestBpmTrack = useMemo(() => getHighestBpmTrack(tracks), [tracks]);
@@ -85,11 +90,7 @@ export const PlaylistStatistics: React.FC<Props> = ({ playlist, tracks }) => {
           <Heading size="xs">{t('playlists:details.statistics.duplicatedTracks')}</Heading>
         </CardHeader>
         <CardBody>
-          {fetchingDuplicatedTracks ? (
-            <Loader />
-          ) : (
-            <Text fontSize="sm">{duplicatedTracks.length}</Text>
-          )}
+          {isLoading ? <Loader /> : <Text fontSize="sm">{duplicatedTracks.length}</Text>}
         </CardBody>
       </Card>
     </SimpleGrid>

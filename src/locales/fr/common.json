@@ -1,5 +1,8 @@
 {
   "back": "Retour",
+  "footer": {
+    "madeBy": "<0>Fait avec ♥️ par <1>artfauq</1></0>"
+  },
   "languages": {
     "en": "English",
     "fr": "Français"

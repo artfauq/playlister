@@ -11,9 +11,11 @@ const {
   FormLabel,
   Heading,
   Link,
+  List,
   Menu,
   Skeleton,
   Spinner,
+  Stepper,
   Switch,
   Table,
 } = chakraTheme.components;
@@ -29,9 +31,11 @@ export const components: ThemeComponents = {
   FormLabel,
   Heading,
   Link,
+  List,
   Menu,
   Skeleton,
   Spinner,
+  Stepper,
   Switch,
   Table,
 };

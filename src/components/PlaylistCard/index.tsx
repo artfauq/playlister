@@ -9,12 +9,24 @@ type Props = PlaylistHeaderProps & {
 } & CardProps;
 
 export const PlaylistCard: React.FC<Props> = ({ playlist, isSelected, ...rest }) => {
+  const cardProps: CardProps = rest.onClick
+    ? {
+        cursor: 'pointer',
+        transitionDuration: '0.15s',
+        transitionProperty: 'box-shadow',
+        transitionTimingFunction: 'ease-in-out',
+        _hover: {
+          shadow: 'md',
+        },
+      }
+    : {};
+
   return (
-    <Card overflow="hidden" variant="elevated" {...rest}>
+    <Card overflow="hidden" variant="elevated" {...cardProps} {...rest}>
       <PlaylistHeader
         playlist={playlist}
-        bg={isSelected ? 'green.200' : 'transparent'}
-        coverSize="sm"
+        bg={isSelected ? 'orange.100' : 'transparent'}
+        coverSize="md"
       />
     </Card>
   );

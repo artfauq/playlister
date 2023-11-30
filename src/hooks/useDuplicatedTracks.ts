@@ -1,38 +1,86 @@
-import { useMemo } from 'react';
+import { usePlaylistsTracks } from '@src/hooks/usePlaylistsTracks';
+import { usePlaylistTracks } from '@src/hooks/usePlaylistTracks';
+import { DuplicateReason, Track } from '@src/types';
+import { getTrackNameAndArtist } from '@src/utils';
 
-import { DuplicateTrack } from '@src/types';
-import { findDuplicateTracks } from '@src/utils';
+export type DuplicateTracksData = Record<
+  string,
+  Array<{
+    sourceTrack: Track;
+    targetTrack: Track;
+    duplicateReason: DuplicateReason;
+  }>
+>;
 
-import { usePlaylistTracks } from './usePlaylistTracks';
-
-type UseDuplicatedTracksResult =
-  | {
-      data: DuplicateTrack[];
-      fetching: false;
-    }
+export type UseDuplicatedTracksResult =
   | {
       data: undefined;
-      fetching: true;
+      isLoading: true;
+    }
+  | {
+      data: DuplicateTracksData;
+      isLoading: false;
     };
 
-export const useDuplicatedTracks = (playlistId: string): UseDuplicatedTracksResult => {
-  const { data: playlistTracks } = usePlaylistTracks(playlistId);
+export function useDuplicatedTracks(
+  sourcePlaylistId: string,
+  targetPlaylistIds: string[],
+): UseDuplicatedTracksResult {
+  const { data: sourcePlaylistTracks } = usePlaylistTracks(sourcePlaylistId);
+  const { data: tracksByPlaylistId } = usePlaylistsTracks(
+    targetPlaylistIds.filter(id => id !== sourcePlaylistId),
+  );
 
-  const duplicatedTracks = useMemo(() => {
-    if (!playlistTracks) return undefined;
-
-    return findDuplicateTracks(playlistTracks);
-  }, [playlistTracks]);
-
-  if (!duplicatedTracks) {
+  if (!sourcePlaylistTracks || !tracksByPlaylistId) {
     return {
       data: undefined,
-      fetching: true,
+      isLoading: true,
     };
   }
 
+  const targetPlaylistsTracks = [...tracksByPlaylistId.entries()]
+    .map(([playlistId, tracks]) => tracks.map(track => ({ ...track, playlistId })))
+    .flat();
+
+  const duplicateTracks: Record<
+    string,
+    Array<{
+      sourceTrack: Track;
+      targetTrack: Track;
+      duplicateReason: DuplicateReason;
+    }>
+  > = {};
+
+  sourcePlaylistTracks.forEach(sourceTrack => {
+    const sourceTrackUri = sourceTrack.uri;
+    const sourceTrackISRC = sourceTrack.isrc;
+    const sourceTrackNameAndArtist = getTrackNameAndArtist(sourceTrack);
+
+    targetPlaylistsTracks.forEach(targetTrack => {
+      const targetTrackUri = targetTrack.uri;
+      const targetTrackISRC = targetTrack.isrc;
+      const targetTrackNameAndArtist = getTrackNameAndArtist(targetTrack);
+
+      let duplicateReason: DuplicateReason | undefined;
+
+      if (targetTrackUri === sourceTrackUri) {
+        duplicateReason = DuplicateReason.SameUri;
+      } else if (targetTrackISRC === sourceTrackISRC) {
+        duplicateReason = DuplicateReason.SameISRC;
+      } else if (targetTrackNameAndArtist === sourceTrackNameAndArtist) {
+        duplicateReason = DuplicateReason.SameArtistAndName;
+      }
+
+      if (duplicateReason) {
+        duplicateTracks[targetTrack.playlistId] = (
+          duplicateTracks[targetTrack.playlistId] ?? []
+        ).concat({ sourceTrack, targetTrack, duplicateReason });
+      }
+    });
+  });
+
   return {
-    data: duplicatedTracks,
-    fetching: false,
+    data: duplicateTracks,
+    isLoading: false,
   };
-};
+}

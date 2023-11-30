@@ -11,7 +11,6 @@ import { nextAuthConfig } from '@src/config';
 export type WrappedGetServerSidePropsContext<Params extends ParsedUrlQuery = ParsedUrlQuery> =
   GetServerSidePropsContext<Params> & {
     queryClient: QueryClient;
-    session: Session | null;
   };
 
 export const SSRWrapper =
@@ -26,7 +25,7 @@ export const SSRWrapper =
   async (context: GetServerSidePropsContext<Params>) => {
     const queryClient = new QueryClient();
 
-    const result = await getServerSideProps({ ...context, queryClient, session: null });
+    const result = await getServerSideProps({ ...context, queryClient });
 
     if (!('props' in result) || 'redirect' in result || 'notFound' in result) {
       return result;
@@ -62,7 +61,11 @@ export function SSRWrapperWithSession<
   Params extends ParsedUrlQuery = ParsedUrlQuery,
 >(
   getServerSideProps:
-    | ((ctx: WrappedGetServerSidePropsContext<Params>) => Promise<GetServerSidePropsResult<Props>>)
+    | ((
+        ctx: WrappedGetServerSidePropsContext<Params> & {
+          session: Session | null;
+        },
+      ) => Promise<GetServerSidePropsResult<Props>>)
     | undefined,
   withRedirect: false,
 ): ReturnType<typeof SSRWrapper<Props, Params>>;
@@ -80,7 +83,7 @@ export function SSRWrapperWithSession<
     if (!session && withRedirect) {
       return {
         redirect: {
-          destination: '/login',
+          destination: '/',
           permanent: false,
         },
       };

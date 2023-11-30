@@ -5,4 +5,5 @@ export * from './playlist.utils';
 export * from './promise.utils';
 export * from './ssr.utils';
 export * from './track.utils';
+export * from './transform.utils';
 export * from './user.utils';

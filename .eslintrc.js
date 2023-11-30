@@ -1,4 +1,9 @@
 module.exports = {
+  env: {
+    es6: true,
+    node: true,
+    jest: true,
+  },
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: './tsconfig.eslint.json',
@@ -12,11 +17,7 @@ module.exports = {
       },
     },
   },
-  env: {
-    es6: true,
-    node: true,
-    jest: true,
-  },
+  ignorePatterns: ['.eslintrc.js'],
   extends: [
     'airbnb',
     'airbnb/hooks',
@@ -83,17 +84,15 @@ module.exports = {
 
     // eslint-plugin-react
     'react/forbid-elements': ['error', { forbid: ['div'] }],
-    'react/function-component-definition': [
-      'error',
-      {
-        namedComponents: ['arrow-function'],
-      },
-    ],
+    'react/function-component-definition': ['off'],
     'react/jsx-handler-names': 'error',
     'react/jsx-props-no-spreading': 'off',
     'react/no-unstable-nested-components': 'off',
     'react/prop-types': 'off',
     'react/require-default-props': 'off',
+
+    // eslint-plugin-react-hooks
+    'react-hooks/exhaustive-deps': 'warn',
 
     // eslint-plugin-unused-imports
     'unused-imports/no-unused-imports': 'error',
@@ -127,8 +126,10 @@ module.exports = {
     '@typescript-eslint/no-unsafe-assignment': 'off',
     '@typescript-eslint/no-unsafe-member-access': 'off',
     '@typescript-eslint/no-unsafe-return': 'off',
+    '@typescript-eslint/no-unused-vars': 'warn',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/require-await': 'warn',
 
     // eslint-plugin-i18next
     'i18next/no-literal-string': 'warn',

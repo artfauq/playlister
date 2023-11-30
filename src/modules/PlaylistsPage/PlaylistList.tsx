@@ -4,21 +4,23 @@ import React from 'react';
 import { LinkBox, LinkOverlay, SimpleGrid, Skeleton, Text } from '@chakra-ui/react';
 
 import { PlaylistCard } from '@src/components/PlaylistCard';
-import { useAppTranslation, useCurrentUser, usePlaylists, useSavedTracksCount } from '@src/hooks';
+import { useAppTranslation, useCurrentUser, useSavedTracksCount } from '@src/hooks';
+import { usePlaylistsContext } from '@src/modules/playlists';
+import { getRoute } from '@src/routes';
 
 type Props = {};
 
 export const PlaylistList: React.FC<Props> = () => {
   const { t } = useAppTranslation();
   const currentUser = useCurrentUser();
-  const { data: playlists, isError: fetchPlaylistsError } = usePlaylists();
+  const playlists = usePlaylistsContext();
   const { data: savedTracksCount, isError: fetchSavedTracksCountError } = useSavedTracksCount();
 
-  if (playlists && savedTracksCount) {
+  if (savedTracksCount) {
     return (
       <SimpleGrid minChildWidth={220} spacing={8}>
         <LinkBox key="savedTracks">
-          <LinkOverlay as={NextLink} href="/playlists/saved">
+          <LinkOverlay as={NextLink} href={getRoute('SavedTracks')}>
             <PlaylistCard
               playlist={{
                 name: t('playlists:savedTracks'),
@@ -33,7 +35,7 @@ export const PlaylistList: React.FC<Props> = () => {
 
         {playlists.map(playlist => (
           <LinkBox key={playlist.id} h="80px">
-            <LinkOverlay as={NextLink} href={`/playlists/${playlist.id}`}>
+            <LinkOverlay as={NextLink} href={getRoute('Playlist')(playlist.id)}>
               <PlaylistCard playlist={playlist} />
             </LinkOverlay>
           </LinkBox>
@@ -42,7 +44,7 @@ export const PlaylistList: React.FC<Props> = () => {
     );
   }
 
-  if (fetchPlaylistsError || fetchSavedTracksCountError) {
+  if (fetchSavedTracksCountError) {
     return <Text>{t('errors:genericFetch')}</Text>;
   }
 

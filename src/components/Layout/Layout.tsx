@@ -1,34 +1,51 @@
 import React from 'react';
 
-import { Container, Flex, useColorModeValue } from '@chakra-ui/react';
+import {
+  Box,
+  Drawer,
+  DrawerContent,
+  useColorModeValue,
+  useDisclosure,
+  VStack,
+} from '@chakra-ui/react';
 
-import { Footer, FooterProps } from '../Footer';
-import { Header } from '../Header';
+import { Footer } from '@src/components/Footer';
 
-type Props = FooterProps & {
+import { Navbar, Sidebar } from './components';
+
+type LayoutProps = {
   children: React.ReactNode;
 };
 
-export const Layout: React.FC<Props> = ({ children, showLogo }) => {
-  const backgroundColor = useColorModeValue(
-    'linear(to-b, gray.50, gray.100)',
-    'linear(to-b, gray.900, gray.700)',
-  );
+export const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
-    <Flex direction="column" bgGradient={backgroundColor} minH="100%">
-      <Header />
-      <Container
-        as="main"
-        display="flex"
-        flex={1}
-        flexDirection="column"
-        maxW={['none', '8xl']}
-        pb="10"
+    <Box minH="100vh" bg={useColorModeValue('gray.100', 'gray.800')}>
+      <Sidebar onClose={onClose} display={{ base: 'none', md: 'block' }} />
+      <Drawer
+        isOpen={isOpen}
+        placement="left"
+        onClose={onClose}
+        returnFocusOnClose={false}
+        onOverlayClick={onClose}
+        size="full"
+      >
+        <DrawerContent>
+          <Sidebar onClose={onClose} />
+        </DrawerContent>
+      </Drawer>
+      <Navbar onOpen={onOpen} />
+      <VStack
+        align="stretch"
+        minH="calc(100vh - var(--chakra-sizes-20))"
+        ml={{ base: 0, md: 60 }}
+        p="8"
+        spacing="8"
       >
         {children}
-      </Container>
-      <Footer showLogo={showLogo} />
-    </Flex>
+      </VStack>
+      <Footer ml={{ base: 0, md: 60 }} />
+    </Box>
   );
 };

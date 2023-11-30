@@ -1,9 +1,13 @@
 {
   "back": "Back",
+  "footer": {
+    "madeBy": "<0>Made with ♥️ by <1>artfauq</1></0>"
+  },
   "languages": {
     "en": "English",
     "fr": "Français"
   },
+  "next": "Next",
   "refreshing": "Refreshing...",
   "signIn": "Log in with Spotify",
   "signOut": "Sign Out"

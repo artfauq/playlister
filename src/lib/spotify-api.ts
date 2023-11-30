@@ -143,6 +143,9 @@ export const fetchUserPlaylists = async () => {
 export function fetchSavedTracks(): Promise<SpotifyApi.SavedTrackObject[]>;
 
 export function fetchSavedTracks(params: {
+  /**
+   * @maximum 100
+   */
   limit: number;
   offset: number;
 }): Promise<SpotifyApi.UsersSavedTracksResponse>;
@@ -184,7 +187,13 @@ export function fetchPlaylistTracks(playlistId: string): Promise<SpotifyApi.Play
 
 export function fetchPlaylistTracks(
   playlistId: string,
-  params: { limit: number; offset: number },
+  params: {
+    /**
+     * @maximum 100
+     */
+    limit: number;
+    offset: number;
+  },
 ): Promise<SpotifyApi.PlaylistTrackResponse>;
 
 export async function fetchPlaylistTracks(
@@ -244,12 +253,32 @@ export const addTracksToPlaylist = async (playlistId: string, tracks: Track[]): 
 };
 
 /**
+ * Replace all tracks in a playlist.
+ */
+export const updatePlaylistTracks = async (playlistId: string, tracks: Track[]) => {
+  if (!tracks.length) return;
+
+  await Promise.all(
+    splitArrayIntoChunks(tracks, 100).map(tracksChunk => {
+      return apiRequest<SpotifyApi.PlaylistSnapshotResponse>({
+        method: 'PUT',
+        url: `/playlists/${playlistId}/tracks`,
+        data: JSON.stringify({
+          uris: tracksChunk.map(track => track.linkedFrom?.uri ?? track.uri),
+        }),
+      });
+    }),
+  );
+};
+
+/**
  * Remove tracks from a playlist.
  */
 export const removeTracksFromPlaylist = async (
   playlistId: string,
   tracks: Track[],
-): Promise<void> => {
+  snapshotId?: string,
+) => {
   if (!tracks.length) return;
 
   await Promise.all(
@@ -261,6 +290,7 @@ export const removeTracksFromPlaylist = async (
           tracks: tracksChunk.map(track => ({
             uri: track.linkedFrom?.uri ?? track.uri,
           })),
+          // snapshot_id: snapshotId,
         }),
       });
     }),
@@ -304,3 +334,37 @@ export const checkUserSavedTracks = async (trackIds: string[]) => {
     }),
   ).then(res => res.reduce((acc, curr) => [...acc, ...curr], []));
 };
+
+/**
+ * Get the current user's top tracks based on calculated affinity.
+ */
+export function fetchUserTopTracks(): Promise<SpotifyApi.TrackObjectFull[]>;
+
+export function fetchUserTopTracks(params: {
+  /**
+   * @maximum 50
+   */
+  limit: number;
+  offset: number;
+  time_range: 'long_term' | 'medium_term' | 'short_term';
+}): Promise<SpotifyApi.UsersTopTracksResponse>;
+
+export async function fetchUserTopTracks(params?: {
+  limit: number;
+  offset: number;
+  time_range: 'long_term' | 'medium_term' | 'short_term';
+}) {
+  if (params) {
+    return apiRequest<SpotifyApi.UsersTopTracksResponse>({
+      url: '/me/top/tracks',
+      params,
+    });
+  }
+
+  return fetchPaginatedData<SpotifyApi.TrackObjectFull>({
+    url: '/me/top/tracks',
+    params: {
+      limit: 50,
+    },
+  });
+}

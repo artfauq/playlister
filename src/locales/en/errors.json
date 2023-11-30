@@ -1,3 +1,4 @@
 {
-  "genericFetch": "An error occurred while fetching data."
+  "genericFetch": "An error occurred while fetching data.",
+  "genericMutate": "An error occurred, please try again later."
 }

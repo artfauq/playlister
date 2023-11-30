@@ -27,7 +27,7 @@ export const PlaylistHeader: React.FC<Props> = ({ playlist, coverSize, ...rest }
 
   return (
     <HStack align="center" spacing="2" {...rest}>
-      <PlaylistCover coverImage={playlist.coverImage} name={playlist.name} size={coverSize} />
+      <PlaylistCover imageUrl={playlist.coverImage} alt={playlist.name} size={coverSize} />
       <VStack align="flex-start" px="2" spacing="1">
         <Heading size="sm" noOfLines={1}>
           {playlist.name}

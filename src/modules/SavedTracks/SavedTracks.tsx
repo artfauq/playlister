@@ -26,7 +26,7 @@ export const SavedTracks: React.FC<Props> = () => {
           }}
         />
       </HStack>
-      <PlaylistTrackList tracks={playlistTracks} />
+      <PlaylistTrackList tracks={playlistTracks} withAudioFeatures />
     </>
   );
 };

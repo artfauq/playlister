@@ -1,129 +1,130 @@
 import React from 'react';
 
-import { Badge, HStack, Icon, Image, Text } from '@chakra-ui/react';
-import { ColumnDef, createColumnHelper } from '@tanstack/table-core';
+import { HStack, Icon, IconButton, Image, Text, VStack } from '@chakra-ui/react';
+import { ColumnDef } from '@tanstack/table-core';
+import { CiTrash } from 'react-icons/ci';
 import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
 import { RxClock } from 'react-icons/rx';
 
 import { Loader } from '@src/components/Loader';
 import { Table } from '@src/components/Table';
 import { useAppTranslation } from '@src/hooks';
-import { DuplicateTrack, TrackWithAudioFeatures } from '@src/types';
+import { Track, TrackWithAudioFeatures } from '@src/types';
 import { parseTrackDuration } from '@src/utils';
 
-type Props = {
-  tracks?: TrackWithAudioFeatures[];
-  duplicatedTracks?: DuplicateTrack[];
+// type Props<T extends Track> = {
+//   tracks?: T[];
+//   // duplicatedTracks?: DuplicateTrack[];
+//   withAudioFeatures?: boolean;
+//   onDelete?: (track: T) => void;
+// };
+
+const tracksHaveAudioFeatures = <T extends Track>(
+  tracks: Array<T | TrackWithAudioFeatures>,
+): tracks is TrackWithAudioFeatures[] => tracks && 'audioFeatures' in tracks[0];
+
+type Props<T extends Track> = {
+  tracks?: T[];
+  onDelete?: (track: T) => void;
 };
 
-export const PlaylistTrackList: React.FC<Props> = ({ tracks, duplicatedTracks }) => {
+export function PlaylistTrackList<T extends Track>({ tracks, onDelete }: Props<T>) {
   const { t } = useAppTranslation();
 
-  const columnHelper = createColumnHelper<TrackWithAudioFeatures>();
+  const withAudioFeatures = tracks ? tracksHaveAudioFeatures(tracks) : false;
 
-  // TODO: be able to customize displayed columns
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const columns: Array<ColumnDef<TrackWithAudioFeatures, any>> = [
-    columnHelper.accessor<'name', string>('name', {
+  const columns: Array<ColumnDef<T, any>> = [
+    {
       id: 'name',
+      accessorKey: 'name',
       header: t('tracks:table.header.name'),
-      cell: ({ getValue, row }) => {
-        const { album } = row.original;
+      cell: ({ row }) => {
+        const { album, artists, name } = row.original;
 
         return (
           <HStack>
             {album.images.length && (
               <Image src={album.images[0].url} alt={album.name} boxSize={12} objectFit="cover" />
             )}
-            <Text isTruncated>{getValue()}</Text>
+            <VStack alignItems="flex-start" spacing="none">
+              <Text isTruncated>{name}</Text>
+              <Text isTruncated fontWeight="semibold">
+                {artists[0].name}
+              </Text>
+            </VStack>
           </HStack>
         );
       },
       enableSorting: true,
-      maxSize: 300,
-    }),
-    columnHelper.accessor<'artists', SpotifyApi.ArtistObjectSimplified[]>('artists', {
-      id: 'artist',
-      header: t('tracks:table.header.artist'),
-      cell: ({ getValue }) => <Text isTruncated>{getValue()[0].name}</Text>,
-      enableSorting: true,
-      sortingFn: (a, b) => a.original.artists[0].name.localeCompare(b.original.artists[0].name),
-      maxSize: 200,
-    }),
-    columnHelper.accessor<'album.name', string>('album.name', {
+      maxSize: 180,
+    },
+    {
       id: 'album',
       header: t('tracks:table.header.album'),
-      cell: ({ getValue }) => <Text isTruncated>{getValue()}</Text>,
+      accessorKey: 'album.name',
+      cell: ({ getValue }) => <Text isTruncated>{getValue<string>()}</Text>,
       enableSorting: true,
       sortingFn: (a, b) => a.original.album.name.localeCompare(b.original.album.name),
-      maxSize: 200,
-    }),
-    columnHelper.accessor<'audioFeatures', SpotifyApi.AudioFeaturesObject | undefined>(
-      'audioFeatures',
-      {
-        id: 'tempo',
-        header: t('tracks:table.header.tempo'),
-        cell: ({ getValue }) => {
-          const audioFeatures = getValue();
-
-          return audioFeatures?.tempo ? audioFeatures.tempo.toFixed(0) : '-';
-        },
-        enableSorting: true,
-        sortDescFirst: true,
-        meta: {
-          isNumeric: true,
-        },
-        maxSize: 100,
-      },
-    ),
-    columnHelper.accessor<'durationMs', number>('durationMs', {
+    },
+    ...(withAudioFeatures
+      ? [
+          {
+            id: 'tempo',
+            header: t('tracks:table.header.tempo'),
+            accessorFn: (track: TrackWithAudioFeatures) => track.audioFeatures?.tempo,
+            cell: ({ getValue }) => getValue<number | undefined>()?.toFixed(0) ?? '-',
+            enableSorting: true,
+            sortDescFirst: true,
+            meta: {
+              isNumeric: true,
+            },
+            maxSize: 100,
+          } as ColumnDef<T, any>,
+        ]
+      : []),
+    {
       id: 'duration',
+      accessorKey: 'durationMs',
       header: () => <Icon as={RxClock} boxSize={4} />,
-      cell: ({ getValue }) => parseTrackDuration(getValue()),
+      cell: ({ getValue }) => parseTrackDuration(getValue<number>()),
       enableSorting: true,
       meta: {
         isNumeric: true,
       },
       maxSize: 100,
-    }),
-    columnHelper.display({
+    },
+    {
       id: 'saved',
       cell: ({ row }) => {
-        const { isSaved } = row.original;
-
-        return <Icon as={isSaved ? MdFavorite : MdFavoriteBorder} boxSize={4} color="red" />;
-      },
-    }),
-    columnHelper.display({
-      id: 'duplicate',
-      cell: ({ row }) => {
-        const { id } = row.original;
-        const suspectedDuplicate = duplicatedTracks?.find(track => track.id === id);
-
-        console.log('suspectedDuplicate', suspectedDuplicate);
-
         return (
-          suspectedDuplicate && (
-            <Badge
-              borderRadius="full"
-              colorScheme="orange"
-              fontSize="2xs"
-              fontWeight="semibold"
-              lineHeight="base"
-              px="2"
-            >
-              {suspectedDuplicate.duplicateReason}
-            </Badge>
-          )
+          <Icon as={row.original.isSaved ? MdFavorite : MdFavoriteBorder} boxSize={4} color="red" />
         );
       },
-    }),
+    },
+    ...(onDelete
+      ? [
+          {
+            id: 'delete',
+            cell: ({ row }) => {
+              return (
+                <IconButton
+                  aria-label="Remove track"
+                  color="red"
+                  icon={<CiTrash />}
+                  fontSize="sm"
+                  onClick={() => onDelete(row.original)}
+                  variant="outline"
+                />
+              );
+            },
+          } as ColumnDef<T, any>,
+        ]
+      : []),
   ];
 
   if (tracks) {
-    return <Table columns={columns} data={tracks} defaultSort={[{ id: 'name', desc: false }]} />;
+    return <Table columns={columns} data={tracks} />;
   }
 
   return <Loader fullScreen loadingText={t('tracks:fetching')} />;
-};
+}

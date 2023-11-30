@@ -1,0 +1,22 @@
+{
+  "duplicateReason": {
+    "sameUri": "Same URI",
+    "sameISRC": "Same ISRC",
+    "sameArtistAndName": "Same name and artist"
+  },
+  "emptyResult": "No duplicates found",
+  "steps": {
+    "step1": {
+      "title": "Playlist to clean",
+      "description": "Select a playlist to remove duplicates from"
+    },
+    "step2": {
+      "title": "Compared playlists",
+      "description": "Select one or multiple playlists to compare"
+    },
+    "step3": {
+      "title": "Result",
+      "description": "Magic happens here"
+    }
+  }
+}

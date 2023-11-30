@@ -1,4 +1,18 @@
 {
-  "title": "Manage your Spotify playlists.",
-  "subtitle": "Add, remove, and reorder tracks in your playlists."
+  "features": {
+    "feature1": {
+      "title": "Remove duplicates",
+      "description": "Find and remove duplicates in your playlists and compare two playlists to find common tracks."
+    },
+    "feature2": {
+      "title": "Save unclassified tracks",
+      "description": "Group all unclassified tracks inside a playlist."
+    },
+    "feature3": {
+      "title": "Top tracks playlist",
+      "description": "Create a playlist from your current top tracks."
+    }
+  },
+  "subtitle": "View all your playlists, find and remove duplicates, save unclassified tracks and much more.",
+  "title": "<h1>Manage your <span>Spotify playlists</span></h1>"
 }

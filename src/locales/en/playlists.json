@@ -18,7 +18,8 @@
       "other": "{{count}} songs"
     }
   },
-  "myPlaylists": "My playlists",
+  "fetching": "Fetching playlists...",
   "savedTracks": "Liked songs",
-  "saveUnclassified": "Refresh"
+  "saveUnclassified": "Refresh",
+  "title": "My playlists"
 }

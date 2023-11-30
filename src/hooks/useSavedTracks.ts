@@ -1,11 +1,10 @@
 import { useQueries, UseQueryOptions } from '@tanstack/react-query';
 
+import { SPOTIFY_SAVED_TRACKS_MAX_LIMIT } from '@src/constants';
 import { useSavedTracksCount } from '@src/hooks/useSavedTracksCount';
 import { spotifyApi } from '@src/lib';
 import { Track } from '@src/types';
 import { trackDto } from '@src/utils';
-
-const MAX_LIMIT = 50;
 
 type UseSavedTracksResult =
   | {
@@ -20,25 +19,25 @@ type UseSavedTracksResult =
 export const useSavedTracks = (): UseSavedTracksResult => {
   const { data: savedTracksCount, isLoading: fetchingSavedTracksCount } = useSavedTracksCount();
 
+  const limit = SPOTIFY_SAVED_TRACKS_MAX_LIMIT;
   const queries = useQueries({
     queries:
       savedTracksCount != null
-        ? Array.from({ length: Math.ceil(savedTracksCount / MAX_LIMIT) }, (_, i) => {
-            const offset = i * MAX_LIMIT;
+        ? Array.from({ length: Math.ceil(savedTracksCount / limit) }, (_, i) => {
+            const offset = i * limit;
 
             const queryOptions: UseQueryOptions<
               SpotifyApi.UsersSavedTracksResponse,
               unknown,
               Track[]
             > = {
-              queryKey: ['savedTracks', { offset }],
-              queryFn: () => spotifyApi.fetchSavedTracks({ limit: MAX_LIMIT, offset }),
+              queryKey: ['savedTracks', { offset, limit }],
+              queryFn: () => spotifyApi.fetchSavedTracks({ limit, offset }),
               select: data =>
                 data.items.reduce<Track[]>(
-                  (acc, track) => [...acc, trackDto(track.track, track.added_at, true)],
+                  (acc, track) => [...acc, trackDto(track.track, null)],
                   [],
                 ),
-              staleTime: 60 * 1000,
             };
 
             return queryOptions;
@@ -55,12 +54,8 @@ export const useSavedTracks = (): UseSavedTracksResult => {
     };
   }
 
-  const data = queries.reduce<Track[]>(
-    (acc, query) => (query.data ? [...acc, ...query.data] : acc),
-    [],
-  );
   return {
-    data,
+    data: queries.reduce<Track[]>((acc, query) => (query.data ? [...acc, ...query.data] : acc), []),
     isLoading: false,
   };
 };

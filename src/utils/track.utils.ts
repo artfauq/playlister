@@ -1,7 +1,11 @@
 import { REMASTERED_TRACK_REGEX } from '@src/constants';
-import { DuplicateTrack, Track, TrackWithAudioFeatures } from '@src/types';
+import { DuplicateReason, DuplicateTrack, Track, TrackWithAudioFeatures } from '@src/types';
 
-export const trackDto = (track: SpotifyApi.TrackObjectFull, isSaved: boolean): Readonly<Track> => {
+export const trackDto = (
+  track: SpotifyApi.TrackObjectFull,
+  playlistId: string | null,
+  isSaved?: boolean,
+): Readonly<Track> => {
   return {
     id: track.id,
     album: track.album,
@@ -12,9 +16,16 @@ export const trackDto = (track: SpotifyApi.TrackObjectFull, isSaved: boolean): R
     isSaved,
     linkedFrom: track.linked_from ?? null,
     name: track.name,
+    playlistId,
     uri: track.uri,
   };
 };
+
+export const getFormattedTrackName = (track: Track) =>
+  track.name.replace(REMASTERED_TRACK_REGEX, '$1').trim();
+
+export const getTrackNameAndArtist = (track: Track) =>
+  `${getFormattedTrackName(track)} - ${track.artists[0].name.toLowerCase()}`;
 
 export const parseTrackDuration = (durationMs: number) => {
   const minutes = Math.floor(durationMs / 60000);
@@ -53,53 +64,41 @@ export const getTracksAverageBpm = (tracks: TrackWithAudioFeatures[]) => {
   return Math.round(tracks.reduce((acc, track) => acc + getTrackBpm(track), 0) / tracks.length);
 };
 
-export const findDuplicateTracks = (tracks: Track[]): DuplicateTrack[] => {
-  const duplicateTracks: DuplicateTrack[] = [];
+export const findDuplicateTracks = <T extends Track>(tracks: T[]): Array<DuplicateTrack<T>> => {
+  const duplicateTracks: Array<DuplicateTrack<T>> = [];
 
   const trackUris = new Set<string>();
   const trackISRCs = new Set<string>();
   const trackNamesAndArtists = new Set<string>();
 
   tracks
-    .filter(track => !track.isLocal)
+    // .filter(track => !track.isLocal)
     .forEach(track => {
       const trackUri = track.uri;
       const trackISRC = track.isrc;
-      const trackName = track.name.replace(REMASTERED_TRACK_REGEX, '$1').trim();
-      const trackArtist = track.artists[0].name.toLowerCase();
+      const trackName = getFormattedTrackName(track);
+      const trackArtist = getTrackNameAndArtist(track);
       const trackNameAndArtist = `${trackName} - ${trackArtist}`;
 
+      let duplicateReason: DuplicateReason | undefined;
+
       if (trackUris.has(trackUri)) {
-        duplicateTracks.push({
-          ...track,
-          duplicateReason: 'sameUri',
-        });
-
-        return;
+        duplicateReason = DuplicateReason.SameUri;
+      } else if (trackISRC && trackISRCs.has(trackISRC)) {
+        duplicateReason = DuplicateReason.SameISRC;
+      } else if (trackNamesAndArtists.has(trackNameAndArtist)) {
+        duplicateReason = DuplicateReason.SameArtistAndName;
       }
 
-      trackUris.add(trackUri);
-
-      if (trackISRC) {
-        if (trackISRCs.has(trackISRC)) {
-          duplicateTracks.push({
-            ...track,
-            duplicateReason: 'sameISRC',
-          });
-
-          return;
-        }
-
-        trackISRCs.add(trackISRC);
-      }
-
-      if (trackNamesAndArtists.has(trackNameAndArtist)) {
-        duplicateTracks.push({
-          ...track,
-          duplicateReason: 'sameArtistAndName',
-        });
+      if (duplicateReason) {
+        duplicateTracks.push({ track, duplicateReason });
       } else {
+        trackUris.add(trackUri);
         trackNamesAndArtists.add(trackNameAndArtist);
+
+        if (trackISRC) {
+          trackISRCs.add(trackISRC);
+        }
       }
     });
 

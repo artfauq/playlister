@@ -1,31 +1,43 @@
 import React from 'react';
 
 import { Link } from '@chakra-ui/next-js';
-import { Box, Center, Divider, Text, useColorModeValue, VStack } from '@chakra-ui/react';
+import { Box, BoxProps, Flex, Text, useColorModeValue } from '@chakra-ui/react';
+import Trans from 'next-translate/Trans';
 
 import { Logo } from '@src/components/Logo';
 
-export type FooterProps = {
-  showLogo?: boolean;
-};
+export type FooterProps = BoxProps;
 
-export const Footer: React.FC<FooterProps> = ({ showLogo = true }) => {
-  const backgroundColor = useColorModeValue('gray.50', 'gray.700');
-
+export const Footer: React.FC<FooterProps> = ({ ...rest }) => {
   return (
-    <Box as="footer" bg={backgroundColor}>
-      <Divider />
-      <Center p="4">
-        <VStack spacing="0">
-          {showLogo && <Logo size="sm" mb="1" />}
-          <Text as="span" colorScheme="gray" fontSize="xs">
-            Made with ♥️ by{' '}
-            <Link href="https://github.com/artfauq" color="teal.500">
-              artfauq
-            </Link>
-          </Text>
-        </VStack>
-      </Center>
+    <Box as="footer" bg={useColorModeValue('gray.50', 'gray.700')} p="4" {...rest}>
+      <Flex
+        align="center"
+        my="2"
+        _before={{
+          content: '""',
+          borderBottom: '1px solid',
+          borderColor: 'gray.200',
+          flexGrow: 1,
+          mr: 8,
+        }}
+        _after={{
+          content: '""',
+          borderBottom: '1px solid',
+          borderColor: 'gray.200',
+          flexGrow: 1,
+          ml: 8,
+        }}
+      >
+        <Logo size="sm" />
+      </Flex>
+      <Trans
+        i18nKey="common:footer.madeBy"
+        components={[
+          <Text colorScheme="gray" fontSize="xs" textAlign="center" />,
+          <Link href="https://github.com/artfauq" color="teal.500" />,
+        ]}
+      />
     </Box>
   );
 };

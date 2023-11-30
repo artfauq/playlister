@@ -3,12 +3,13 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { spotifyApi } from '@src/lib';
 import { playlistDto } from '@src/utils';
 
-export const usePlaylist = (playlistId: string) => {
+export const usePlaylist = (playlistId?: string) => {
   const queryClient = useQueryClient();
 
   return useQuery({
-    queryKey: ['playlists', 'detail', playlistId],
-    queryFn: () => spotifyApi.fetchPlaylist(playlistId),
+    enabled: !!playlistId,
+    queryKey: ['playlists', playlistId, 'details'],
+    queryFn: playlistId ? () => spotifyApi.fetchPlaylist(playlistId) : undefined,
     initialData: () => {
       const cachedPlaylist = queryClient
         .getQueryData<SpotifyApi.PlaylistObjectSimplified[]>(['playlists'])
@@ -30,6 +31,5 @@ export const usePlaylist = (playlistId: string) => {
 
       return playlist ? playlistDto(playlist, cachedPlaylist?.snapshot_id) : undefined;
     },
-    staleTime: 60 * 1000,
   });
 };

@@ -6,5 +6,4 @@ export const useSavedTracksCount = () =>
   useQuery({
     queryKey: ['savedTracksCount'],
     queryFn: () => spotifyApi.countSavedTracks(),
-    staleTime: 60 * 1000,
   });
