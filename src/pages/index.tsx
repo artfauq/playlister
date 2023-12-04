@@ -13,7 +13,7 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { NextSeo } from 'next-seo';
 import Trans from 'next-translate/Trans';
 import { FaSpotify } from 'react-icons/fa';
@@ -21,7 +21,6 @@ import { FcDeleteDatabase, FcMultipleInputs, FcPositiveDynamic } from 'react-ico
 
 import { FeatureGrid, FeatureType, Logo } from '@src/components';
 import { useAppTranslation } from '@src/hooks';
-import { useCurrentUser } from '@src/modules/user';
 import { getRoute } from '@src/routes';
 import { SSRWrapperWithSession } from '@src/utils';
 
@@ -45,7 +44,7 @@ const onSignIn = () => {
 const Home: NextPage = () => {
   const { t } = useAppTranslation();
   const router = useRouter();
-  const currentUser = useCurrentUser();
+  const { data: session } = useSession();
 
   const features: FeatureType[] = useMemo(
     () => [
@@ -69,10 +68,10 @@ const Home: NextPage = () => {
   );
 
   useEffect(() => {
-    if (currentUser) {
+    if (session) {
       router.replace(getRoute('PlaylistsIndex'));
     }
-  }, [currentUser]);
+  }, [session]);
 
   return (
     <>
