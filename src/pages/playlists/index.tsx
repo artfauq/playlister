@@ -5,9 +5,9 @@ import { Heading } from '@chakra-ui/react';
 import { NextSeo } from 'next-seo';
 
 import { Layout } from '@src/components';
+import { withAuthentication } from '@src/hocs';
 import { useAppTranslation } from '@src/hooks';
-import { PlaylistsProvider } from '@src/modules/playlists';
-import { PlaylistList } from '@src/modules/PlaylistsPage';
+import { PlaylistList, PlaylistsProvider } from '@src/modules/playlists';
 import { SSRWrapperWithSession } from '@src/utils';
 
 export const getServerSideProps = SSRWrapperWithSession(undefined);
@@ -28,4 +28,4 @@ const PlaylistsPage: NextPage = () => {
   );
 };
 
-export default PlaylistsPage;
+export default withAuthentication(PlaylistsPage);

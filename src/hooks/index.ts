@@ -1,4 +1,3 @@
-export * from './useCurrentUser';
 export * from './useDuplicatedTracks';
 export * from './usePlaylist';
 export * from './usePlaylistsTracks';

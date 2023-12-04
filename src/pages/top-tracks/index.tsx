@@ -5,6 +5,7 @@ import { Card, Heading } from '@chakra-ui/react';
 import { NextSeo } from 'next-seo';
 
 import { Layout, PlaylistTrackList } from '@src/components';
+import { withAuthentication } from '@src/hocs';
 import { useAppTranslation, useTopTracks } from '@src/hooks';
 import { PlaylistsProvider } from '@src/modules/playlists';
 import { SSRWrapperWithSession } from '@src/utils';
@@ -28,4 +29,4 @@ const TopTracksPage: NextPage = () => {
   );
 };
 
-export default TopTracksPage;
+export default withAuthentication(TopTracksPage);

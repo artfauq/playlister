@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { HStack } from '@chakra-ui/react';
+import { Card, HStack } from '@chakra-ui/react';
 
 import { PlaylistHeader, PlaylistTrackList } from '@src/components';
-import { useAppTranslation, useCurrentUser, useSavedTracks, useSavedTracksCount } from '@src/hooks';
+import { useAppTranslation, useSavedTracks, useSavedTracksCount } from '@src/hooks';
+import { useCurrentUser } from '@src/modules/user';
 
 type Props = {};
 
@@ -20,13 +21,15 @@ export const SavedTracks: React.FC<Props> = () => {
           playlist={{
             name: t('playlists:savedTracks'),
             coverImage: '/images/liked-song.png',
-            owner: currentUser?.name,
+            owner: currentUser,
             public: false,
             trackCount: savedTracksCount,
           }}
         />
       </HStack>
-      <PlaylistTrackList tracks={playlistTracks} withAudioFeatures />
+      <Card flex={1}>
+        <PlaylistTrackList tracks={playlistTracks} />
+      </Card>
     </>
   );
 };

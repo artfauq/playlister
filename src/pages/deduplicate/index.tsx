@@ -4,6 +4,7 @@ import React from 'react';
 import { NextSeo } from 'next-seo';
 
 import { Layout } from '@src/components';
+import { withAuthentication } from '@src/hocs';
 import { useAppTranslation } from '@src/hooks';
 import { DeduplicateScreen } from '@src/modules/deduplicate';
 import { PlaylistsProvider } from '@src/modules/playlists';
@@ -26,4 +27,4 @@ const DeduplicatePlaylistPage: NextPage = () => {
   );
 };
 
-export default DeduplicatePlaylistPage;
+export default withAuthentication(DeduplicatePlaylistPage);

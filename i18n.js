@@ -5,7 +5,7 @@ module.exports = {
     '*': ['common', 'navigation', 'errors'],
     '/': ['home', 'playlists'],
     '/deduplicate': ['playlists', 'tracks', 'deduplicate'],
-    '/saved': ['playlists', 'tracks'],
+    '/saved-tracks': ['playlists', 'tracks'],
     '/top-tracks': ['playlists', 'tracks'],
     '/unclassified': ['playlists', 'tracks'],
     'rgx:^/playlists/*': ['playlists', 'tracks'],

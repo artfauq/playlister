@@ -4,8 +4,9 @@ import React from 'react';
 import { LinkBox, LinkOverlay, SimpleGrid, Skeleton, Text } from '@chakra-ui/react';
 
 import { PlaylistCard } from '@src/components/PlaylistCard';
-import { useAppTranslation, useCurrentUser, useSavedTracksCount } from '@src/hooks';
-import { usePlaylistsContext } from '@src/modules/playlists';
+import { useAppTranslation, useSavedTracksCount } from '@src/hooks';
+import { usePlaylists } from '@src/modules/playlists';
+import { useCurrentUser } from '@src/modules/user';
 import { getRoute } from '@src/routes';
 
 type Props = {};
@@ -13,7 +14,7 @@ type Props = {};
 export const PlaylistList: React.FC<Props> = () => {
   const { t } = useAppTranslation();
   const currentUser = useCurrentUser();
-  const playlists = usePlaylistsContext();
+  const playlists = usePlaylists();
   const { data: savedTracksCount, isError: fetchSavedTracksCountError } = useSavedTracksCount();
 
   if (savedTracksCount) {
@@ -25,7 +26,7 @@ export const PlaylistList: React.FC<Props> = () => {
               playlist={{
                 name: t('playlists:savedTracks'),
                 coverImage: '/images/liked-song.png',
-                owner: currentUser?.name,
+                owner: currentUser,
                 public: null,
                 trackCount: savedTracksCount,
               }}

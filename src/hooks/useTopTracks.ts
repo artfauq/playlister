@@ -1,6 +1,7 @@
 import { useQueries } from '@tanstack/react-query';
 import ms from 'ms';
 
+import { queryKeys } from '@src/config';
 import { spotifyApi } from '@src/lib';
 import { Track } from '@src/types';
 import { trackDto } from '@src/utils';
@@ -19,7 +20,7 @@ export const useTopTracks = (): UseTopTracksResult => {
   const queries = useQueries({
     queries: [
       {
-        queryKey: ['topTracks', { offset: 0 }],
+        queryKey: queryKeys.topTracks.list({ offset: 0 }).queryKey,
         queryFn: async () => {
           const topTracks = await spotifyApi
             .fetchUserTopTracks({ limit: 50, offset: 0, time_range: 'medium_term' })
@@ -37,7 +38,7 @@ export const useTopTracks = (): UseTopTracksResult => {
         staleTime: ms('1d'),
       },
       {
-        queryKey: ['topTracks', { offset: 50 }],
+        queryKey: queryKeys.topTracks.list({ offset: 50 }).queryKey,
         queryFn: async () => {
           const topTracks = await spotifyApi
             .fetchUserTopTracks({ limit: 50, offset: 50, time_range: 'medium_term' })

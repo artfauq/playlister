@@ -1,18 +1,15 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 
-import { Button, Card, Center, HStack, useToast } from '@chakra-ui/react';
+import { Button, Card, Center, HStack, Text, useToast, VStack } from '@chakra-ui/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { PlaylistHeader, PlaylistTrackList } from '@src/components';
+import { Loader, PlaylistHeader, PlaylistTrackList } from '@src/components';
+import { queryKeys } from '@src/config';
 import { UNCLASSIFIED_PLAYLIST_NAME } from '@src/constants';
-import {
-  useAppTranslation,
-  useCurrentUser,
-  usePlaylistTracks,
-  useUnclassifiedTracks,
-} from '@src/hooks';
+import { useAppTranslation, usePlaylistTracks, useUnclassifiedTracks } from '@src/hooks';
 import { spotifyApi } from '@src/lib';
-import { usePlaylistsContext } from '@src/modules/playlists';
+import { usePlaylists } from '@src/modules/playlists';
+import { useCurrentUser } from '@src/modules/user';
 import { CreatePlaylistInput, Playlist, Track } from '@src/types';
 import { playlistDto } from '@src/utils';
 
@@ -21,35 +18,52 @@ export const UnclassifiedTracksScreen: React.FC = () => {
   const toast = useToast();
   const currentUser = useCurrentUser();
   const queryClient = useQueryClient();
-  const playlists = usePlaylistsContext();
-  const { data: unclassifiedTracks } = useUnclassifiedTracks();
+  const playlists = usePlaylists();
+  const { data: unclassifiedTracks, isLoading } = useUnclassifiedTracks();
   const unclassifiedPlaylist = playlists?.find(p => p.name === UNCLASSIFIED_PLAYLIST_NAME);
-  const { data: unclassifiedPlaylistTracks } = usePlaylistTracks(unclassifiedPlaylist?.id);
+  const {
+    data: unclassifiedPlaylistTracks,
+    isLoading: refreshing,
+    refetch,
+  } = usePlaylistTracks(unclassifiedPlaylist?.id);
 
   const { mutateAsync: createPlaylist } = useMutation({
     mutationFn: async ({ userId, values }: { userId: string; values: CreatePlaylistInput }) =>
       spotifyApi.createPlaylist(userId, values),
     onSuccess: playlist => {
       // queryClient.setQueryData(['playlists'], [...(playlists ?? []), playlist]);
-      queryClient.setQueryData(['playlists', playlist.id, 'details'], playlist);
+      queryClient.setQueryData(queryKeys.playlists.details(playlist.id).queryKey, playlist);
     },
   });
-  const { mutate: saveUnclassified } = useMutation({
+  const { mutate: saveUnclassified, isLoading: saving } = useMutation({
     mutationFn: async ({
       playlist,
-      tracks,
-      userId,
+      toAddTracks,
+      toRemoveTracks,
     }: {
       playlist: Playlist;
-      tracks: Track[];
-      userId: string;
+      toAddTracks: Track[];
+      toRemoveTracks: Track[];
     }) => {
-      await spotifyApi.updatePlaylistTracks(playlist.id, tracks);
+      await spotifyApi.addTracksToPlaylist(playlist.id, toAddTracks);
+      await spotifyApi.removeTracksFromPlaylist(playlist.id, toRemoveTracks, playlist.snapshotId);
+      await refetch();
+    },
+    onSuccess: async () => {
+      toast({
+        title: 'Done!',
+        description: 'Unclassified playlist updated',
+        status: 'success',
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.playlists.all.queryKey,
+      });
     },
   });
 
   const onSaveUnclassified = async () => {
-    if (!currentUser?.id || !unclassifiedTracks) return;
+    if (!currentUser?.id || !toAddTracks || !toRemoveTracks) return;
 
     const playlist: Playlist =
       unclassifiedPlaylist ??
@@ -64,7 +78,7 @@ export const UnclassifiedTracksScreen: React.FC = () => {
         },
       }).then(playlistDto));
 
-    saveUnclassified({ playlist, tracks: unclassifiedTracks, userId: currentUser.id });
+    saveUnclassified({ playlist, toAddTracks, toRemoveTracks });
   };
 
   const toAddTracks = useMemo(() => {
@@ -84,42 +98,31 @@ export const UnclassifiedTracksScreen: React.FC = () => {
     );
   }, [unclassifiedTracks, unclassifiedPlaylistTracks]);
 
-  useEffect(() => {
-    if (!toAddTracks || !toRemoveTracks || toast.isActive('unclassified-tracks')) return;
-
-    if (toAddTracks.length || toRemoveTracks.length) {
-      toast({
-        id: 'unclassified-tracks',
-        title: 'Update needed',
-        description: `Found ${toAddTracks.length} tracks to add and ${toRemoveTracks.length} tracks to remove from unclassified playlist.`,
-        duration: 5000,
-        status: 'warning',
-      });
-    } else {
-      toast({
-        id: 'unclassified-tracks',
-        title: 'Unclassified playlist is up-to-date',
-        duration: 5000,
-        isClosable: true,
-        status: 'success',
-      });
-    }
-  }, [toAddTracks, toRemoveTracks, toast]);
+  if (isLoading) {
+    return <Loader fullScreen />;
+  }
 
   if (unclassifiedPlaylist) {
     return (
       <>
         <HStack justifyContent="space-between">
           <PlaylistHeader playlist={unclassifiedPlaylist} />
-          <Button
-            colorScheme="teal"
-            // isLoading={isLoading}
-            loadingText={t('common:refreshing')}
-            onClick={onSaveUnclassified}
-            variant="solid"
-          >
-            {t('playlists:saveUnclassified')}
-          </Button>
+          {toAddTracks && toRemoveTracks && (
+            <VStack alignItems="flex-end">
+              <Button
+                colorScheme="teal"
+                isLoading={saving || refreshing}
+                loadingText={t('common:refreshing')}
+                onClick={onSaveUnclassified}
+                variant="solid"
+              >
+                {t('playlists:saveUnclassified')}
+              </Button>
+              <Text>
+                {toAddTracks.length} tracks to add and {toRemoveTracks.length} tracks to remove
+              </Text>
+            </VStack>
+          )}
         </HStack>
         <Card flex={1}>
           <PlaylistTrackList tracks={unclassifiedTracks} />

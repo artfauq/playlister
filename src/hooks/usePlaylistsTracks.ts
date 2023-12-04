@@ -1,7 +1,9 @@
 import { useQueries } from '@tanstack/react-query';
+import ms from 'ms';
 
+import { queryKeys } from '@src/config';
 import { spotifyApi } from '@src/lib';
-import { usePlaylistsContext } from '@src/modules/playlists';
+import { usePlaylists } from '@src/modules/playlists';
 import { Track } from '@src/types';
 import { trackDto } from '@src/utils';
 
@@ -16,7 +18,7 @@ type UsePlaylistsTracksResult =
     };
 
 export const usePlaylistsTracks = (playlistIds: string[]): UsePlaylistsTracksResult => {
-  const playlists = usePlaylistsContext();
+  const playlists = usePlaylists();
 
   // const limit = SPOTIFY_PLAYLIST_TRACKS_MAX_LIMIT;
   const queries = playlists
@@ -28,7 +30,7 @@ export const usePlaylistsTracks = (playlistIds: string[]): UsePlaylistsTracksRes
       //   // const offset = i * limit;
 
       //   const queryOptions = {
-      //     queryKey: ['playlists', playlist.id, 'tracks'],
+      //     queryKey: queryKeys.playlists.tracks(playlist.id).queryKey,
       //     queryFn: async () => spotifyApi.fetchPlaylistTracks(playlist.id),
       //     select: (data: SpotifyApi.PlaylistTrackObject[] | undefined) => {
       //       if (!data) return data;
@@ -44,7 +46,7 @@ export const usePlaylistsTracks = (playlistIds: string[]): UsePlaylistsTracksRes
       //   return queryOptions;
       // });
       const queryOptions = {
-        queryKey: ['playlists', playlist.id, 'tracks'],
+        queryKey: queryKeys.playlists.tracks(playlist.id).queryKey,
         queryFn: async () => spotifyApi.fetchPlaylistTracks(playlist.id),
         select: (data: SpotifyApi.PlaylistTrackObject[] | undefined) => {
           if (!data) return data;
@@ -54,7 +56,7 @@ export const usePlaylistsTracks = (playlistIds: string[]): UsePlaylistsTracksRes
             [] as Track[],
           );
         },
-        staleTime: 0,
+        staleTime: ms('15m'),
       };
 
       return queryOptions;

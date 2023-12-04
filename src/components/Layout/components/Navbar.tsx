@@ -21,7 +21,8 @@ import { FiChevronDown, FiMenu } from 'react-icons/fi';
 
 import { ColorModeSelector } from '@src/components/ColorModeSelector';
 import { Logo } from '@src/components/Logo';
-import { useAppTranslation, useCurrentUser } from '@src/hooks';
+import { useAppTranslation } from '@src/hooks';
+import { useCurrentUser } from '@src/modules/user';
 
 type NavbarProps = FlexProps & {
   onOpen: () => void;

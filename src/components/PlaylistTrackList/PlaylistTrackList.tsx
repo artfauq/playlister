@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { HStack, Icon, IconButton, Image, Text, VStack } from '@chakra-ui/react';
+import { HStack, Icon, IconButton, Image, Text } from '@chakra-ui/react';
 import { ColumnDef } from '@tanstack/table-core';
 import { CiTrash } from 'react-icons/ci';
 import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
@@ -46,17 +46,18 @@ export function PlaylistTrackList<T extends Track>({ tracks, onDelete }: Props<T
             {album.images.length && (
               <Image src={album.images[0].url} alt={album.name} boxSize={12} objectFit="cover" />
             )}
-            <VStack alignItems="flex-start" spacing="none">
-              <Text isTruncated>{name}</Text>
-              <Text isTruncated fontWeight="semibold">
+            <Text isTruncated>
+              <Text as="span">{name}</Text>
+              <br />
+              <Text as="span" fontWeight="semibold">
                 {artists[0].name}
               </Text>
-            </VStack>
+            </Text>
           </HStack>
         );
       },
       enableSorting: true,
-      maxSize: 180,
+      maxSize: 250,
     },
     {
       id: 'album',
@@ -65,6 +66,7 @@ export function PlaylistTrackList<T extends Track>({ tracks, onDelete }: Props<T
       cell: ({ getValue }) => <Text isTruncated>{getValue<string>()}</Text>,
       enableSorting: true,
       sortingFn: (a, b) => a.original.album.name.localeCompare(b.original.album.name),
+      maxSize: 400,
     },
     ...(withAudioFeatures
       ? [
@@ -78,7 +80,7 @@ export function PlaylistTrackList<T extends Track>({ tracks, onDelete }: Props<T
             meta: {
               isNumeric: true,
             },
-            maxSize: 100,
+            maxSize: 80,
           } as ColumnDef<T, any>,
         ]
       : []),
@@ -91,7 +93,7 @@ export function PlaylistTrackList<T extends Track>({ tracks, onDelete }: Props<T
       meta: {
         isNumeric: true,
       },
-      maxSize: 100,
+      maxSize: 60,
     },
     {
       id: 'saved',
@@ -100,6 +102,10 @@ export function PlaylistTrackList<T extends Track>({ tracks, onDelete }: Props<T
           <Icon as={row.original.isSaved ? MdFavorite : MdFavoriteBorder} boxSize={4} color="red" />
         );
       },
+      meta: {
+        isNumeric: true,
+      },
+      maxSize: 50,
     },
     ...(onDelete
       ? [

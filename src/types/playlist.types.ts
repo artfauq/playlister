@@ -6,7 +6,11 @@ export type Playlist = {
   collaborative: boolean;
   followers: number | null;
   public: boolean | null;
-  owner: string | null;
+  owner: {
+    id: string;
+    name: string | null;
+    image: string | null;
+  } | null;
   snapshotId: string;
   stale: boolean;
   trackCount: number;

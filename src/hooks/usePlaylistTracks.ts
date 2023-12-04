@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
+import ms from 'ms';
 
-import { usePlaylist } from '@src/hooks/usePlaylist';
+import { queryKeys } from '@src/config';
 import { spotifyApi } from '@src/lib';
 import { Track } from '@src/types';
 import { trackDto } from '@src/utils';
@@ -16,11 +17,11 @@ type UsePlaylistTracksResult =
     };
 
 export const usePlaylistTracks = (playlistId?: string) => {
-  const { data: playlist } = usePlaylist(playlistId);
+  // const { data: playlist } = usePlaylist(playlistId);
 
   return useQuery({
     enabled: !!playlistId,
-    queryKey: ['playlists', playlistId, 'tracks'],
+    queryKey: queryKeys.playlists.tracks(playlistId!).queryKey,
     queryFn: async () => spotifyApi.fetchPlaylistTracks(playlistId!),
     select: (data: SpotifyApi.PlaylistTrackObject[] | undefined) => {
       if (!data) return data;
@@ -34,7 +35,7 @@ export const usePlaylistTracks = (playlistId?: string) => {
       // const trackIds = tracks.map(track => track.id);
       // const savedTracksIndices = await spotifyApi.checkUserSavedTracks(trackIds);
     },
-    staleTime: 0,
+    staleTime: ms('15m'),
   });
 
   // const limit = SPOTIFY_PLAYLIST_TRACKS_MAX_LIMIT;

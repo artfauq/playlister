@@ -58,7 +58,7 @@ module.exports = {
 
     // eslint-plugin-import rules
     'import/prefer-default-export': 'off',
-    'import/no-cycle': 'warn',
+    'import/no-cycle': 'off',
     'import/no-extraneous-dependencies': 'off',
     'import/no-unresolved': 'error',
     'import/order': [

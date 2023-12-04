@@ -17,6 +17,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CiTrash } from 'react-icons/ci';
 
 import { PlaylistCover, TrackSummary } from '@src/components';
+import { queryKeys } from '@src/config';
 import { useAppTranslation } from '@src/hooks';
 import { spotifyApi } from '@src/lib';
 import { DuplicateReason, Playlist, Track } from '@src/types';
@@ -58,7 +59,7 @@ export const PlaylistDuplicateTracks: React.FC<Props> = ({
       });
 
       queryClient.setQueryData(
-        ['playlists', variables.playlist.id, 'tracks'],
+        queryKeys.playlists.tracks(variables.playlist.id).queryKey,
         (prevTracks: SpotifyApi.PlaylistTrackObject[] | undefined) => {
           if (prevTracks) {
             const deletedTrackUris = mapObjectsByKey(variables.tracks, 'uri');
@@ -117,6 +118,7 @@ export const PlaylistDuplicateTracks: React.FC<Props> = ({
       {duplicateTracks.length ? (
         <Grid templateColumns="repeat(5, 1fr)" gap={4}>
           {duplicateTracks.map(({ sourceTrack, targetTrack, duplicateReason }, index) => (
+            // eslint-disable-next-line react/no-array-index-key
             <Fragment key={`${sourceTrack.id}-${targetTrack.id}-${duplicateReason}_${index}`}>
               <GridItem colSpan={2}>
                 <HStack>

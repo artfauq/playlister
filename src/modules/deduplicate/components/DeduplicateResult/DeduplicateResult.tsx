@@ -5,7 +5,7 @@ import { VStack } from '@chakra-ui/react';
 import { Loader } from '@src/components';
 import { useDuplicatedTracks } from '@src/hooks';
 import { PlaylistDuplicateTracks } from '@src/modules/deduplicate/components/DeduplicateResult/components/PlaylistDuplicateTracks';
-import { usePlaylistsContext } from '@src/modules/playlists';
+import { usePlaylists } from '@src/modules/playlists';
 
 type Props = {
   sourcePlaylistId: string;
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export const DeduplicateResult: React.FC<Props> = ({ sourcePlaylistId, targetPlaylistIds }) => {
-  const playlists = usePlaylistsContext();
+  const playlists = usePlaylists();
   const { data: duplicatedTracks } = useDuplicatedTracks(sourcePlaylistId, targetPlaylistIds);
 
   if (duplicatedTracks) {

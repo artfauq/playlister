@@ -1,5 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import ms from 'ms';
 
+import { queryKeys } from '@src/config';
 import { spotifyApi } from '@src/lib';
 import { playlistDto } from '@src/utils';
 
@@ -8,28 +10,28 @@ export const usePlaylist = (playlistId?: string) => {
 
   return useQuery({
     enabled: !!playlistId,
-    queryKey: ['playlists', playlistId, 'details'],
+    queryKey: queryKeys.playlists.details(playlistId!).queryKey,
     queryFn: playlistId ? () => spotifyApi.fetchPlaylist(playlistId) : undefined,
     initialData: () => {
       const cachedPlaylist = queryClient
-        .getQueryData<SpotifyApi.PlaylistObjectSimplified[]>(['playlists'])
+        .getQueryData<SpotifyApi.PlaylistObjectSimplified[]>(queryKeys.playlists.all.queryKey)
         ?.find(p => p.id === playlistId);
 
       return cachedPlaylist;
     },
-    initialDataUpdatedAt: () => queryClient.getQueryState(['playlists'])?.dataUpdatedAt,
+    initialDataUpdatedAt: () =>
+      queryClient.getQueryState(queryKeys.playlists.all.queryKey)?.dataUpdatedAt,
     select: playlist => {
       const cachedPlaylist =
-        queryClient.getQueryData<SpotifyApi.SinglePlaylistResponse>([
-          'playlists',
-          'detail',
-          playlistId,
-        ]) ??
+        queryClient.getQueryData<SpotifyApi.SinglePlaylistResponse>(
+          queryKeys.playlists.details(playlistId!).queryKey,
+        ) ??
         queryClient
-          .getQueryData<SpotifyApi.PlaylistObjectSimplified[]>(['playlists'])
+          .getQueryData<SpotifyApi.PlaylistObjectSimplified[]>(queryKeys.playlists.all.queryKey)
           ?.find(p => p.id === playlistId);
 
       return playlist ? playlistDto(playlist, cachedPlaylist?.snapshot_id) : undefined;
     },
+    staleTime: ms('15m'),
   });
 };

@@ -3,7 +3,7 @@ import React from 'react';
 import { SimpleGrid, useCheckboxGroup } from '@chakra-ui/react';
 
 import { SelectablePlaylist } from '@src/modules/deduplicate/components/SelectablePlaylist';
-import { usePlaylistsContext } from '@src/modules/playlists';
+import { usePlaylists } from '@src/modules/playlists';
 
 type Props = {
   onSelect: (playlistIds: string[]) => void;
@@ -11,7 +11,7 @@ type Props = {
 };
 
 export const SelectMultiplePlaylistStep: React.FC<Props> = ({ onSelect, selectedPlaylistIds }) => {
-  const playlists = usePlaylistsContext();
+  const playlists = usePlaylists();
   const { value, onChange: handleChange } = useCheckboxGroup({
     onChange: onSelect,
     value: selectedPlaylistIds,

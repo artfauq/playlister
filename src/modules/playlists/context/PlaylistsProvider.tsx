@@ -1,11 +1,13 @@
-import React, { createContext, useCallback } from 'react';
+import React, { createContext, useCallback, useContext } from 'react';
 
 import { Text } from '@chakra-ui/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Loader } from '@src/components';
+import { queryKeys } from '@src/config';
 import { useAppTranslation } from '@src/hooks';
 import { spotifyApi } from '@src/lib';
+import { useCurrentUser } from '@src/modules/user';
 import { Playlist } from '@src/types';
 import { playlistDto } from '@src/utils';
 
@@ -14,12 +16,12 @@ const PlaylistsContext = createContext<Playlist[] | null>(null);
 export const PlaylistsProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { t } = useAppTranslation();
   const queryClient = useQueryClient();
-  const previousPlaylists = queryClient.getQueryData<SpotifyApi.PlaylistObjectSimplified[]>([
-    'playlists',
-  ]);
+  const previousPlaylists = queryClient.getQueryData<SpotifyApi.PlaylistObjectSimplified[]>(
+    queryKeys.playlists.all.queryKey,
+  );
 
   const { data, isError, isLoading } = useQuery({
-    queryKey: ['playlists'],
+    queryKey: queryKeys.playlists.all.queryKey,
     queryFn: () => spotifyApi.fetchUserPlaylists(),
     select: useCallback(
       (items: SpotifyApi.PlaylistObjectSimplified[]) =>
@@ -41,12 +43,13 @@ export const PlaylistsProvider: React.FC<React.PropsWithChildren> = ({ children 
   return <PlaylistsContext.Provider value={data}>{children}</PlaylistsContext.Provider>;
 };
 
-export const usePlaylistsContext = () => {
-  const context = React.useContext(PlaylistsContext);
+export const usePlaylists = (ownedByUser?: boolean) => {
+  const playlists = useContext(PlaylistsContext);
+  const currentUser = useCurrentUser();
 
-  if (context == null) {
-    throw new Error('usePlaylistsContext() must be used within a <PlaylistsProvider />');
+  if (playlists == null) {
+    throw new Error('usePlaylists() must be used within a <PlaylistsProvider />');
   }
 
-  return context;
+  return ownedByUser ? playlists.filter(p => p.owner?.id === currentUser.id) : playlists;
 };

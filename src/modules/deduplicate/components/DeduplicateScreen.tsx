@@ -3,9 +3,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Box, Button, Heading, HStack, useSteps } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { queryKeys } from '@src/config';
 import { useAppTranslation } from '@src/hooks';
 import { spotifyApi } from '@src/lib';
-import { usePlaylistsContext } from '@src/modules/playlists';
+import { usePlaylists } from '@src/modules/playlists';
 import { mapObjectsByKey } from '@src/utils';
 
 import { DeduplicateResult } from './DeduplicateResult';
@@ -13,7 +14,7 @@ import { SelectSinglePlaylistStep } from './SelectSinglePlaylistStep';
 
 export const DeduplicateScreen: React.FC = () => {
   const { t } = useAppTranslation();
-  const playlists = usePlaylistsContext();
+  const playlists = usePlaylists();
   const queryClient = useQueryClient();
   const [sourcePlaylistId, setSourcePlaylistId] = useState<string>();
   // const [targetPlaylistIds, setTargetPlaylistIds] = useState<string[]>([]);
@@ -53,7 +54,7 @@ export const DeduplicateScreen: React.FC = () => {
 
   const prefetchPlaylistTracks = async (playlistId: string) => {
     await queryClient.prefetchQuery({
-      queryKey: ['playlists', playlistId, 'tracks'],
+      queryKey: queryKeys.playlists.tracks(playlistId).queryKey,
       queryFn: async () => spotifyApi.fetchPlaylistTracks(playlistId),
     });
   };

@@ -20,7 +20,8 @@ import { FaSpotify } from 'react-icons/fa';
 import { FcDeleteDatabase, FcMultipleInputs, FcPositiveDynamic } from 'react-icons/fc';
 
 import { FeatureGrid, FeatureType, Logo } from '@src/components';
-import { useAppTranslation, useCurrentUser } from '@src/hooks';
+import { useAppTranslation } from '@src/hooks';
+import { useCurrentUser } from '@src/modules/user';
 import { getRoute } from '@src/routes';
 import { SSRWrapperWithSession } from '@src/utils';
 

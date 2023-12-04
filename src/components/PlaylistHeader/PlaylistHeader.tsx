@@ -13,7 +13,11 @@ export type PlaylistHeaderProps = {
     name: string;
     coverImage?: string | null;
     followers?: number | null;
-    owner?: string | null;
+    owner?: {
+      id: string;
+      name?: string | null;
+      image?: string | null;
+    } | null;
     public?: boolean | null;
     trackCount?: number;
   };
@@ -44,7 +48,7 @@ export const PlaylistHeader: React.FC<Props> = ({ playlist, coverSize, ...rest }
           <HStack spacing="0" mt="1">
             <Icon as={FaUser} boxSize={3} color="gray.400" />
             <Text color="gray.500" fontSize="sm" lineHeight="none" px="1">
-              {playlist.owner}
+              {playlist.owner.name}
             </Text>
           </HStack>
         )}

@@ -13,7 +13,13 @@ export const playlistDto = (
     followers: 'followers' in playlist ? playlist.followers.total : null,
     stale: playlist.snapshot_id === previousSnapshotId,
     public: playlist.public,
-    owner: playlist.owner.display_name ?? null,
+    owner: playlist.owner
+      ? {
+          id: playlist.owner.id,
+          name: playlist.owner.display_name ?? null,
+          image: playlist.owner.images?.length ? playlist.owner.images[0].url : null,
+        }
+      : null,
     snapshotId: playlist.snapshot_id,
     trackCount: playlist.tracks.total,
   };

@@ -4,7 +4,7 @@ import { SimpleGrid } from '@chakra-ui/react';
 
 import { PlaylistCard } from '@src/components';
 import { useAppTranslation } from '@src/hooks';
-import { usePlaylistsContext } from '@src/modules/playlists';
+import { usePlaylists } from '@src/modules/playlists';
 
 type Props = {
   onSelect: (playlistId: string) => void;
@@ -13,7 +13,7 @@ type Props = {
 
 export const SelectSinglePlaylistStep: React.FC<Props> = ({ onSelect, selectedPlaylistId }) => {
   const { t } = useAppTranslation();
-  const playlists = usePlaylistsContext();
+  const playlists = usePlaylists(true);
   // const { value, onChange: handleChange } = useRadioGroup({
   //   name: 'playlist',
   //   onChange: onSelect,

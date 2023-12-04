@@ -253,25 +253,6 @@ export const addTracksToPlaylist = async (playlistId: string, tracks: Track[]): 
 };
 
 /**
- * Replace all tracks in a playlist.
- */
-export const updatePlaylistTracks = async (playlistId: string, tracks: Track[]) => {
-  if (!tracks.length) return;
-
-  await Promise.all(
-    splitArrayIntoChunks(tracks, 100).map(tracksChunk => {
-      return apiRequest<SpotifyApi.PlaylistSnapshotResponse>({
-        method: 'PUT',
-        url: `/playlists/${playlistId}/tracks`,
-        data: JSON.stringify({
-          uris: tracksChunk.map(track => track.linkedFrom?.uri ?? track.uri),
-        }),
-      });
-    }),
-  );
-};
-
-/**
  * Remove tracks from a playlist.
  */
 export const removeTracksFromPlaylist = async (
@@ -290,7 +271,7 @@ export const removeTracksFromPlaylist = async (
           tracks: tracksChunk.map(track => ({
             uri: track.linkedFrom?.uri ?? track.uri,
           })),
-          // snapshot_id: snapshotId,
+          snapshot_id: snapshotId,
         }),
       });
     }),

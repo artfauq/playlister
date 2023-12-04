@@ -4,10 +4,10 @@ import React from 'react';
 import { NextSeo } from 'next-seo';
 
 import { Layout } from '@src/components';
+import { withAuthentication } from '@src/hocs';
 import { useAppTranslation } from '@src/hooks';
 import { spotifyApi } from '@src/lib';
-import { PlaylistsProvider } from '@src/modules/playlists';
-import { SavedTracks } from '@src/modules/SavedTracks';
+import { PlaylistsProvider, SavedTracks } from '@src/modules/playlists';
 import { SSRWrapperWithSession } from '@src/utils';
 
 export const getServerSideProps = SSRWrapperWithSession(async ({ queryClient, session }) => {
@@ -32,15 +32,13 @@ const SavedTracksPage: NextPage = () => {
   const { t } = useAppTranslation();
 
   return (
-    <>
+    <PlaylistsProvider>
       <NextSeo title={t('playlists:savedTracks')} />
       <Layout>
-        <PlaylistsProvider>
-          <SavedTracks />
-        </PlaylistsProvider>
+        <SavedTracks />
       </Layout>
-    </>
+    </PlaylistsProvider>
   );
 };
 
-export default SavedTracksPage;
+export default withAuthentication(SavedTracksPage);

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Card, HStack } from '@chakra-ui/react';
 
-import { PlaylistHeader, PlaylistTrackList } from '@src/components';
+import { PlaylistHeader, PlaylistStatistics, PlaylistTrackList } from '@src/components';
 import { usePlaylistTracksWithAudioFeatures } from '@src/hooks';
 import { Playlist } from '@src/types';
 
@@ -15,12 +15,12 @@ export const PlaylistDetails: React.FC<Props> = ({ playlist }) => {
 
   return (
     <>
-      <HStack justify="space-between">
+      <HStack alignItems="flex-start" justifyContent="space-between">
         <PlaylistHeader playlist={playlist} coverSize="lg" />
-        {/* <PlaylistStatistics playlist={playlist} tracks={playlistTracks} /> */}
+        <PlaylistStatistics playlist={playlist} />
       </HStack>
       <Card flex={1}>
-        <PlaylistTrackList tracks={playlistTracks} withAudioFeatures />
+        <PlaylistTrackList tracks={playlistTracks} />
       </Card>
     </>
   );

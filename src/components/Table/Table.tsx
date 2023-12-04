@@ -55,28 +55,24 @@ export const Table = <TData extends object>({
         <Thead>
           {table.getHeaderGroups().map(headerGroup => (
             <Tr key={headerGroup.id}>
-              {headerGroup.headers.map(header => {
-                const { meta } = header.column.columnDef;
-
-                return (
-                  <Th
-                    key={header.id}
-                    onClick={header.column.getToggleSortingHandler()}
-                    isNumeric={meta?.isNumeric}
-                    cursor={header.column.getCanSort() ? 'pointer' : 'default'}
-                  >
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    <chakra.span pl="2">
-                      {header.column.getIsSorted() &&
-                        (header.column.getIsSorted() === 'desc' ? (
-                          <Icon as={RxCaretDown} aria-label="sorted descending" />
-                        ) : (
-                          <Icon as={RxCaretUp} aria-label="sorted ascending" />
-                        ))}
-                    </chakra.span>
-                  </Th>
-                );
-              })}
+              {headerGroup.headers.map(header => (
+                <Th
+                  key={header.id}
+                  onClick={header.column.getToggleSortingHandler()}
+                  isNumeric={header.column.columnDef.meta?.isNumeric}
+                  cursor={header.column.getCanSort() ? 'pointer' : 'default'}
+                >
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                  <chakra.span pl="2">
+                    {header.column.getIsSorted() &&
+                      (header.column.getIsSorted() === 'desc' ? (
+                        <Icon as={RxCaretDown} aria-label="sorted descending" />
+                      ) : (
+                        <Icon as={RxCaretUp} aria-label="sorted ascending" />
+                      ))}
+                  </chakra.span>
+                </Th>
+              ))}
             </Tr>
           ))}
         </Thead>
@@ -84,14 +80,16 @@ export const Table = <TData extends object>({
           {table.getRowModel().rows.map(row => (
             <Tr key={row.id}>
               {row.getVisibleCells().map(cell => {
-                const { meta } = cell.column.columnDef;
+                const isNumeric = cell.column.columnDef.meta?.isNumeric;
+                const width = cell.column.columnDef.size
+                  ? `${cell.column.columnDef.size}px`
+                  : undefined;
+                const maxWidth = cell.column.columnDef.maxSize
+                  ? `${cell.column.columnDef.maxSize}px`
+                  : undefined;
 
                 return (
-                  <Td
-                    key={cell.id}
-                    isNumeric={meta?.isNumeric}
-                    maxW={cell.column.columnDef.maxSize}
-                  >
+                  <Td key={cell.id} isNumeric={isNumeric} maxW={maxWidth} w={width}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Td>
                 );

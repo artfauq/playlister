@@ -6,10 +6,11 @@ import { Skeleton } from '@chakra-ui/react';
 import { NextSeo } from 'next-seo';
 
 import { Layout } from '@src/components';
+import { queryKeys } from '@src/config';
+import { withAuthentication } from '@src/hocs';
 import { usePlaylist } from '@src/hooks';
 import { spotifyApi } from '@src/lib';
-import { PlaylistDetails } from '@src/modules/PlaylistDetails';
-import { PlaylistsProvider } from '@src/modules/playlists';
+import { PlaylistDetails, PlaylistsProvider } from '@src/modules/playlists';
 import { SSRWrapperWithSession } from '@src/utils';
 
 export const getServerSideProps = SSRWrapperWithSession<{}, { playlistId: string }>(
@@ -20,7 +21,7 @@ export const getServerSideProps = SSRWrapperWithSession<{}, { playlistId: string
       };
     }
 
-    await queryClient.prefetchQuery(['playlists', 'detail', params.playlistId], () =>
+    await queryClient.prefetchQuery(queryKeys.playlists.details(params.playlistId).queryKey, () =>
       spotifyApi.apiRequest<SpotifyApi.SinglePlaylistResponse>({
         url: `/playlists/${params.playlistId}`,
         headers: {
@@ -55,4 +56,4 @@ const PlaylistPage: NextPage = () => {
   );
 };
 
-export default PlaylistPage;
+export default withAuthentication(PlaylistPage);
