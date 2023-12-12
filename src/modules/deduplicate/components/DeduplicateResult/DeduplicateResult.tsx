@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { VStack } from '@chakra-ui/react';
+import { Text, VStack } from '@chakra-ui/react';
 
 import { Loader } from '@src/components';
 import { useDuplicatedTracks } from '@src/hooks';
@@ -21,7 +21,9 @@ export const DeduplicateResult: React.FC<Props> = ({ sourcePlaylistId, targetPla
 
     if (!sourcePlaylist) return null;
 
-    // TODO: show a message if there are no duplicates
+    const hasDuplicates = Object.keys(duplicatedTracks).length;
+
+    if (!hasDuplicates) return <Text>No duplicates found</Text>;
 
     return (
       <VStack align="stretch" spacing="10">

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { Box, Button, Heading, HStack, useSteps } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -6,33 +6,35 @@ import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@src/config';
 import { useAppTranslation } from '@src/hooks';
 import { spotifyApi } from '@src/lib';
-import { usePlaylists } from '@src/modules/playlists';
-import { mapObjectsByKey } from '@src/utils';
 
 import { DeduplicateResult } from './DeduplicateResult';
+import { DeduplicateStepper } from './DeduplicateStepper';
+import { SelectMultiplePlaylistStep } from './SelectMultiplePlaylistStep';
 import { SelectSinglePlaylistStep } from './SelectSinglePlaylistStep';
 
 export const DeduplicateScreen: React.FC = () => {
   const { t } = useAppTranslation();
-  const playlists = usePlaylists();
   const queryClient = useQueryClient();
   const [sourcePlaylistId, setSourcePlaylistId] = useState<string>();
-  // const [targetPlaylistIds, setTargetPlaylistIds] = useState<string[]>([]);
+  const [targetPlaylistIds, setTargetPlaylistIds] = useState<string[]>([]);
 
-  const steps = [
-    {
-      title: t('deduplicate:steps.step1.title'),
-      description: t('deduplicate:steps.step1.description'),
-    },
-    {
-      title: t('deduplicate:steps.step2.title'),
-      description: t('deduplicate:steps.step2.description'),
-    },
-    {
-      title: t('deduplicate:steps.step3.title'),
-      description: t('deduplicate:steps.step3.description'),
-    },
-  ];
+  const steps = useMemo(
+    () => [
+      {
+        title: t('deduplicate:steps.step1.title'),
+        description: t('deduplicate:steps.step1.description'),
+      },
+      {
+        title: t('deduplicate:steps.step2.title'),
+        description: t('deduplicate:steps.step2.description'),
+      },
+      {
+        title: t('deduplicate:steps.step3.title'),
+        description: t('deduplicate:steps.step3.description'),
+      },
+    ],
+    [t],
+  );
 
   const { activeStep, setActiveStep } = useSteps({
     index: 1,
@@ -44,20 +46,23 @@ export const DeduplicateScreen: React.FC = () => {
       case 1:
         return !!sourcePlaylistId;
 
-      // case 2:
-      //   return targetPlaylistIds.length > 0;
+      case 2:
+        return targetPlaylistIds.length > 0;
 
       default:
         return true;
     }
-  }, [activeStep, sourcePlaylistId]);
+  }, [activeStep, sourcePlaylistId, targetPlaylistIds.length]);
 
-  const prefetchPlaylistTracks = async (playlistId: string) => {
-    await queryClient.prefetchQuery({
-      queryKey: queryKeys.playlists.tracks(playlistId).queryKey,
-      queryFn: async () => spotifyApi.fetchPlaylistTracks(playlistId),
-    });
-  };
+  const prefetchPlaylistTracks = useCallback(
+    async (playlistId: string) => {
+      await queryClient.prefetchQuery({
+        queryKey: queryKeys.playlists.tracks(playlistId).queryKey,
+        queryFn: async () => spotifyApi.fetchPlaylistTracks(playlistId),
+      });
+    },
+    [queryClient],
+  );
 
   useEffect(() => {
     if (sourcePlaylistId) {
@@ -68,29 +73,7 @@ export const DeduplicateScreen: React.FC = () => {
   return (
     <>
       <Heading as="h1">{t('navigation:deduplicate')}</Heading>
-      {/* <Stepper index={activeStep}>
-        {steps.map((step, index) => (
-          <Step
-            key={step.title}
-            onClick={index + 1 < activeStep ? () => setActiveStep(index + 1) : undefined}
-          >
-            <StepIndicator>
-              <StepStatus
-                complete={<StepIcon />}
-                incomplete={<StepNumber />}
-                active={<StepNumber />}
-              />
-            </StepIndicator>
-
-            <Box flexShrink="0">
-              <StepTitle>{step.title}</StepTitle>
-              <StepDescription>{step.description}</StepDescription>
-            </Box>
-
-            <StepSeparator />
-          </Step>
-        ))}
-      </Stepper> */}
+      <DeduplicateStepper activeStep={activeStep} steps={steps} onStepClick={setActiveStep} />
 
       {activeStep === 1 && (
         <SelectSinglePlaylistStep
@@ -98,16 +81,16 @@ export const DeduplicateScreen: React.FC = () => {
           selectedPlaylistId={sourcePlaylistId}
         />
       )}
-      {/* {activeStep === 2 && (
+      {activeStep === 2 && (
         <SelectMultiplePlaylistStep
           onSelect={setTargetPlaylistIds}
           selectedPlaylistIds={targetPlaylistIds}
         />
-      )} */}
-      {activeStep === 2 && sourcePlaylistId && (
+      )}
+      {activeStep === 3 && sourcePlaylistId && (
         <DeduplicateResult
           sourcePlaylistId={sourcePlaylistId}
-          targetPlaylistIds={mapObjectsByKey(playlists, 'id')}
+          targetPlaylistIds={targetPlaylistIds}
         />
       )}
 
