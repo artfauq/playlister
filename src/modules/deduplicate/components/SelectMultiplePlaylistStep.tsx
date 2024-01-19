@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { SimpleGrid, useCheckboxGroup } from '@chakra-ui/react';
 
@@ -16,6 +16,20 @@ export const SelectMultiplePlaylistStep: React.FC<Props> = ({ onSelect, selected
     onChange: onSelect,
     value: selectedPlaylistIds,
   });
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'a' && event.ctrlKey) {
+        event.preventDefault();
+
+        onSelect(playlists.map(playlist => playlist.id));
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <SimpleGrid minChildWidth={180} spacing={4}>
