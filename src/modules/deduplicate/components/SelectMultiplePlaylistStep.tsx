@@ -19,9 +19,9 @@ export const SelectMultiplePlaylistStep: React.FC<Props> = ({ onSelect, selected
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'a' && event.ctrlKey) {
-        event.preventDefault();
+      event.preventDefault();
 
+      if (event.metaKey && event.key === 'a') {
         onSelect(playlists.map(playlist => playlist.id));
       }
     };
