@@ -8,7 +8,7 @@ export const playlistDto = (
     id: playlist.id,
     name: playlist.name,
     description: playlist.description,
-    coverImage: playlist.images.length ? playlist.images[0].url : null,
+    coverImage: playlist.images?.length ? playlist.images[0].url : null,
     collaborative: playlist.collaborative,
     followers: 'followers' in playlist ? playlist.followers.total : null,
     stale: playlist.snapshot_id === previousSnapshotId,

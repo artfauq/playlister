@@ -1,6 +1,6 @@
 import React, { createContext, useCallback, useContext } from 'react';
 
-import { Text } from '@chakra-ui/react';
+import { Center, Text } from '@chakra-ui/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Loader } from '@src/components';
@@ -38,7 +38,12 @@ export const PlaylistsProvider: React.FC<React.PropsWithChildren> = ({ children 
 
   if (isLoading) return <Loader fullScreen loadingText={t('playlists:fetching')} />;
 
-  if (isError) return <Text>{t('errors:genericFetch')}</Text>;
+  if (isError)
+    return (
+      <Center flex={1}>
+        <Text>{t('errors:genericFetch')}</Text>
+      </Center>
+    );
 
   return <PlaylistsContext.Provider value={data}>{children}</PlaylistsContext.Provider>;
 };
