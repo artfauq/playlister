@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { Text, VStack } from '@chakra-ui/react';
+import { Card, Text, VStack } from '@chakra-ui/react';
 
 import { Loader } from '@src/components';
-import { useDuplicatedTracks } from '@src/hooks';
+import { useAppTranslation, useDuplicatedTracks } from '@src/hooks';
 import { PlaylistDuplicateTracks } from '@src/modules/deduplicate/components/DeduplicateResult/components/PlaylistDuplicateTracks';
 import { usePlaylists } from '@src/modules/playlists';
 
@@ -13,6 +13,7 @@ type Props = {
 };
 
 export const DeduplicateResult: React.FC<Props> = ({ sourcePlaylistId, targetPlaylistIds }) => {
+  const { t } = useAppTranslation();
   const playlists = usePlaylists();
   const { data: duplicatedTracks } = useDuplicatedTracks(sourcePlaylistId, targetPlaylistIds);
 
@@ -23,7 +24,13 @@ export const DeduplicateResult: React.FC<Props> = ({ sourcePlaylistId, targetPla
 
     const hasDuplicates = Object.keys(duplicatedTracks).length;
 
-    if (!hasDuplicates) return <Text>No duplicates found</Text>;
+    if (!hasDuplicates) {
+      return (
+        <Card align="center" justify="center" minH={200} p="4">
+          <Text>{t('deduplicate:emptyResult')}</Text>
+        </Card>
+      );
+    }
 
     return (
       <VStack align="stretch" spacing="10">

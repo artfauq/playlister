@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { Box, Button, Heading, HStack, useSteps } from '@chakra-ui/react';
+import { Button, Flex, Heading, HStack, useSteps } from '@chakra-ui/react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { queryKeys } from '@src/config';
@@ -64,6 +64,12 @@ export const DeduplicateScreen: React.FC = () => {
     [queryClient],
   );
 
+  const resetState = useCallback(() => {
+    setActiveStep(1);
+    setSourcePlaylistId(undefined);
+    setTargetPlaylistIds([]);
+  }, [setActiveStep]);
+
   useEffect(() => {
     if (sourcePlaylistId) {
       prefetchPlaylistTracks(sourcePlaylistId);
@@ -95,8 +101,8 @@ export const DeduplicateScreen: React.FC = () => {
         />
       )}
 
-      <HStack justify="space-between" mt="auto">
-        {activeStep > 1 ? (
+      {activeStep < 3 ? (
+        <HStack justify="space-between" mt="auto">
           <Button
             onClick={() => setActiveStep(activeStep - 1)}
             colorScheme="spotify"
@@ -106,20 +112,23 @@ export const DeduplicateScreen: React.FC = () => {
           >
             {t('common:back')}
           </Button>
-        ) : (
-          <Box />
-        )}
-
-        <Button
-          onClick={() => setActiveStep(activeStep + 1)}
-          colorScheme="spotify"
-          isDisabled={!isActiveStepValid || activeStep === steps.length}
-          variant="solid"
-          w="7rem"
-        >
-          {t('common:next')}
-        </Button>
-      </HStack>
+          <Button
+            onClick={() => setActiveStep(activeStep + 1)}
+            colorScheme="spotify"
+            isDisabled={!isActiveStepValid || activeStep === steps.length}
+            variant="solid"
+            w="7rem"
+          >
+            {t('common:next')}
+          </Button>
+        </HStack>
+      ) : (
+        <Flex justify="center" mt="auto">
+          <Button onClick={resetState} colorScheme="spotify" variant="solid" w="8rem">
+            {t('common:reset')}
+          </Button>
+        </Flex>
+      )}
     </>
   );
 };

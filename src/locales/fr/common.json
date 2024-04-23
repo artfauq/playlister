@@ -7,7 +7,9 @@
     "en": "English",
     "fr": "Français"
   },
-  "refreshing": "Rafraîchissement...",
+  "next": "Suivant",
+  "refreshing": "Actualisation...",
+  "reset": "Réinitialiser",
   "signIn": "Se connecter avec Spotify",
   "signOut": "Déconnexion"
 }
