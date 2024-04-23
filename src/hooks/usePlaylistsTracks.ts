@@ -1,5 +1,4 @@
 import { useQueries } from '@tanstack/react-query';
-import ms from 'ms';
 
 import { queryKeys } from '@src/config';
 import { spotifyApi } from '@src/lib';
@@ -56,7 +55,6 @@ export const usePlaylistsTracks = (playlistIds: string[]): UsePlaylistsTracksRes
             [] as Track[],
           );
         },
-        staleTime: ms('15m'),
       };
 
       return queryOptions;

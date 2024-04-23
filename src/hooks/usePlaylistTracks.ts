@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import ms from 'ms';
 
 import { queryKeys } from '@src/config';
 import { spotifyApi } from '@src/lib';
@@ -35,7 +34,6 @@ export const usePlaylistTracks = (playlistId?: string) => {
       // const trackIds = tracks.map(track => track.id);
       // const savedTracksIndices = await spotifyApi.checkUserSavedTracks(trackIds);
     },
-    staleTime: ms('15m'),
   });
 
   // const limit = SPOTIFY_PLAYLIST_TRACKS_MAX_LIMIT;

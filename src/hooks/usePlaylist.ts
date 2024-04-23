@@ -1,5 +1,4 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import ms from 'ms';
 
 import { queryKeys } from '@src/config';
 import { spotifyApi } from '@src/lib';
@@ -32,6 +31,5 @@ export const usePlaylist = (playlistId?: string) => {
 
       return playlist ? playlistDto(playlist, cachedPlaylist?.snapshot_id) : undefined;
     },
-    staleTime: ms('15m'),
   });
 };
