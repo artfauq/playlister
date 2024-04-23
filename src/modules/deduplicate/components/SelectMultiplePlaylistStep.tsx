@@ -8,9 +8,14 @@ import { usePlaylists } from '@src/modules/playlists';
 type Props = {
   onSelect: (playlistIds: string[]) => void;
   selectedPlaylistIds?: string[];
+  sourcePlaylistId?: string;
 };
 
-export const SelectMultiplePlaylistStep: React.FC<Props> = ({ onSelect, selectedPlaylistIds }) => {
+export const SelectMultiplePlaylistStep: React.FC<Props> = ({
+  onSelect,
+  selectedPlaylistIds,
+  sourcePlaylistId,
+}) => {
   const playlists = usePlaylists();
   const { value, onChange: handleChange } = useCheckboxGroup({
     onChange: onSelect,
@@ -33,14 +38,16 @@ export const SelectMultiplePlaylistStep: React.FC<Props> = ({ onSelect, selected
 
   return (
     <SimpleGrid minChildWidth={180} spacing={4}>
-      {playlists.map(playlist => (
-        <SelectablePlaylist
-          key={playlist.id}
-          playlist={playlist}
-          isSelected={value.includes(playlist.id)}
-          onSelect={handleChange}
-        />
-      ))}
+      {playlists
+        .filter(p => p.id !== sourcePlaylistId)
+        .map(playlist => (
+          <SelectablePlaylist
+            key={playlist.id}
+            playlist={playlist}
+            isSelected={value.includes(playlist.id)}
+            onSelect={handleChange}
+          />
+        ))}
     </SimpleGrid>
   );
 };

@@ -85,6 +85,7 @@ export const DeduplicateScreen: React.FC = () => {
         <SelectMultiplePlaylistStep
           onSelect={setTargetPlaylistIds}
           selectedPlaylistIds={targetPlaylistIds}
+          sourcePlaylistId={sourcePlaylistId}
         />
       )}
       {activeStep === 3 && sourcePlaylistId && (
