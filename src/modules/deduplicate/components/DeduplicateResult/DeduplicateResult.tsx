@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card, Text, VStack } from '@chakra-ui/react';
+import { Card, Container, Text, VStack } from '@chakra-ui/react';
 
 import { Loader } from '@src/components';
 import { useAppTranslation, useDuplicatedTracks } from '@src/hooks';
@@ -26,29 +26,33 @@ export const DeduplicateResult: React.FC<Props> = ({ sourcePlaylistId, targetPla
 
     if (!hasDuplicates) {
       return (
-        <Card align="center" justify="center" minH={200} p="4">
-          <Text>{t('deduplicate:emptyResult')}</Text>
-        </Card>
+        <Container maxW="container.lg">
+          <Card align="center" justify="center" minH={200} p="4">
+            <Text>{t('deduplicate:emptyResult')}</Text>
+          </Card>
+        </Container>
       );
     }
 
     return (
-      <VStack align="stretch" spacing="10">
-        {Object.entries(duplicatedTracks).map(([targetPlaylistId, duplicateTracks]) => {
-          const targetPlaylist = playlists.find(p => p.id === targetPlaylistId);
+      <Container maxW="container.lg">
+        <VStack align="stretch" spacing="10">
+          {Object.entries(duplicatedTracks).map(([targetPlaylistId, duplicateTracks]) => {
+            const targetPlaylist = playlists.find(p => p.id === targetPlaylistId);
 
-          if (!targetPlaylist) return null;
+            if (!targetPlaylist) return null;
 
-          return (
-            <PlaylistDuplicateTracks
-              key={targetPlaylistId}
-              sourcePlaylist={sourcePlaylist}
-              targetPlaylist={targetPlaylist}
-              duplicateTracks={duplicateTracks}
-            />
-          );
-        })}
-      </VStack>
+            return (
+              <PlaylistDuplicateTracks
+                key={targetPlaylistId}
+                sourcePlaylist={sourcePlaylist}
+                targetPlaylist={targetPlaylist}
+                duplicateTracks={duplicateTracks}
+              />
+            );
+          })}
+        </VStack>
+      </Container>
     );
   }
 

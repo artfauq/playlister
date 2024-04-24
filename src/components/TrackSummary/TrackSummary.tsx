@@ -11,12 +11,12 @@ type Props = {
 };
 
 export const TrackSummary: React.FC<Props> = ({ align, track }) => {
-  const alignRight = align === 'left';
+  const alignRight = align === 'right';
 
   return (
     <Stack direction={alignRight ? 'row-reverse' : 'row'}>
       <TrackCover track={track} />
-      <VStack align="flex-start" spacing="0">
+      <VStack align="stretch" spacing="0">
         <Text fontSize="sm" fontWeight="semibold" lineHeight="short" textAlign={align}>
           {track.name}
         </Text>
