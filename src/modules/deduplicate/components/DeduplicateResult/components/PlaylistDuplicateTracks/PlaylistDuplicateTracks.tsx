@@ -130,7 +130,7 @@ export const PlaylistDuplicateTracks: React.FC<Props> = ({
                     }
                     variant="ghost"
                   />
-                  <TrackSummary track={sourceTrack} />
+                  <TrackSummary align="left" track={sourceTrack} />
                 </HStack>
               </GridItem>
 
@@ -144,7 +144,7 @@ export const PlaylistDuplicateTracks: React.FC<Props> = ({
 
               <GridItem colSpan={2}>
                 <HStack justify="flex-end">
-                  <TrackSummary track={targetTrack} />
+                  <TrackSummary align="right" track={targetTrack} />
                   <IconButton
                     aria-label="Remove track"
                     icon={<CiTrash />}
