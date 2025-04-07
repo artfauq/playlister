@@ -271,7 +271,7 @@ export const removeTracksFromPlaylist = async (
           tracks: tracksChunk.map(track => ({
             uri: track.linkedFrom?.uri ?? track.uri,
           })),
-          snapshot_id: snapshotId,
+          // snapshot_id: snapshotId, // FIXME: https://community.spotify.com/t5/Spotify-for-Developers/Getting-502-response-on-DELETE-for-playlist-lt-playlistid-tracks/td-p/6736837
         }),
       });
     }),
